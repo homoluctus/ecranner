@@ -8,7 +8,7 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
 - Slack Integration
   - Push vulnerability information to Slack. Slack UI is as following:
 
-    <img src="./slack_ui.png" alt="Slack-UI" width="70%">
+    <img src="https://github.com/homoluctus/ecranner/blob/master/slack_ui.png" alt="Slack-UI" width="70%">
 
 ## How to use
 ### 1. Create .env file
