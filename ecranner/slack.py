@@ -2,13 +2,13 @@ import os
 import sys
 import requests
 from . import log, msg
-import json
+
 
 LOGGER = log.get_logger()
-SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 
 try:
     SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
+    SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 except KeyError:
     LOGGER.exception(f'"SLACK_WEBHOOK"{msg.ENV_CONFIGURE}')
     sys.exit(1)
