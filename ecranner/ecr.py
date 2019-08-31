@@ -99,7 +99,7 @@ def execute_cmd(cmd):
     try:
         proc = subprocess.run(
             cmd, capture_output=True, check=True,
-            timeout=120, encoding='utf-8')
+            timeout=300, encoding='utf-8')
 
         LOGGER.debug(proc.stdout)
 
