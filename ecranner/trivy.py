@@ -1,6 +1,5 @@
 import json
 import subprocess
-from pathlib import Path
 from . import log, msg
 
 LOGGER = log.get_logger()
@@ -25,7 +24,7 @@ def run(image_name):
     try:
         proc = subprocess.run(cmd, check=True,
                               capture_output=True,
-                              timeout=300)
+                              timeout=600)
         result = json.loads(proc.stdout)
         return result
 
