@@ -21,6 +21,7 @@ docker-compose.ymlと同階層に`.env`を作成し、以下の項目を設定�
 |AWS_SECRET_ACCESS_KEY|REQUIRED||
 |AWS_DEFAULT_REGION|OPTIONAL|default: us-east-1|
 |SLACK_WEBHOOK|REQUIRED|Slack Incoming Webhooks URL<br>reference: https://api.slack.com/incoming-webhooks|
+|SLACK_CHANNEL|OPTIONAL|Slack channel that you want post message|
 |IMAGE_TAG|OPTIONAL|Docker image tag<br>default: latest|
 |TZ|OPTIONAL|timezone|
 |LOG_LEVEL|OPTIONAL|default: INFO<br>servirity: DEBUG, INFO, WARNING, ERROR, CRITICAL<br>reference: [Logging HOWTO — Python 3.7.4 documentation](https://docs.python.org/3/howto/logging.html#when-to-use-logging)|
