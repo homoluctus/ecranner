@@ -1,0 +1,6 @@
+[
+  {
+    "Target": "python:3.7-alpine (alpine 3.10.1)",
+    "Vulnerabilities": null
+  }
+]

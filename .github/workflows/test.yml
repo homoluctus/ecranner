@@ -1,0 +1,32 @@
+on:
+  push:
+    paths:
+      - ecranner/*
+      - tests/*
+name: Lint and Test
+jobs:
+  lint:
+    name: Lint check
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          version: '3.7'
+          architecture: 'x64'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip pipenv flake8
+          pipenv install --system
+      - name: Lint check with flake8
+        run: flake8 src tests
+      - name: Notify Result to Slack
+        uses: homoluctus/slatify@master
+        if: always()
+        with:
+          type: ${{ job.status }}
+          channel: '#alert_crm_develop'
+          job_name: '*Lint Check*'
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

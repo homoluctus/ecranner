@@ -1,0 +1,8 @@
+START_PROCESS = '処理開始'
+FAIL_PROCESS = '処理失敗'
+FINISH_PROCESS = '処理終了'
+LOGIN_SUCCESS = 'ログイン成功'
+ERROR = 'エラーが発生しました'
+TIMEOUT = 'HTTPリクエストがタイムアウトしました'
+ENV_CONFIGURE = '環境変数を設定してください'
+CMD_EXECUTION_ERROR = 'コマンドの実行に失敗しました'

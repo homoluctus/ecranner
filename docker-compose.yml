@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  app:
+    build: .
+    image: ecranner
+    container_name: ecranner_local
+    env_file: .env
+    privileged: true
