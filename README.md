@@ -27,15 +27,14 @@ docker-compose.ymlと同階層に`.env`を作成し、以下の項目を設定�
 |LOG_LEVEL|OPTIONAL|default: INFO<br>servirity: DEBUG, INFO, WARNING, ERROR, CRITICAL<br>reference: [Logging HOWTO — Python 3.7.4 documentation](https://docs.python.org/3/howto/logging.html#when-to-use-logging)|
 
 
-### 2. コンテナのビルド＆実行
+### 2. Pull image
 
 ```
-docker-compose up --build
+docker pull iscream/ecranner
 ```
 
-
-### 3. Docker環境の一括削除
+### 3. Execute docker container
 
 ```
-docker-compose down
+docker run --env-file ./.env --privileged iscream/ecranner
 ```
