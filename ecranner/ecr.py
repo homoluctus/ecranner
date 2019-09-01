@@ -1,8 +1,10 @@
 import sys
 import os
 import boto3
+import docker
 import subprocess
 from . import log, msg
+from .exceptions import ImageMismatchedError
 
 LOGGER = log.get_logger()
 
@@ -68,20 +70,19 @@ def pull_images(image_name_list):
 
     for image_name in image_name_list:
         try:
-            ECRHandler.pull(image_name)
+            client = ECRHandler(image_name)
+            client.pull(image_name)
 
-        except (subprocess.CalledProcessError,
-                subprocess.TimeoutExpired) as err:
-            LOGGER.exception(msg.CMD_EXECUTION_ERROR)
-            LOGGER.error(err.cmd)
-            LOGGER.error(err.stderr)
-
-        except Exception:
-            LOGGER.exception(msg.CMD_EXECUTION_ERROR)
+        except Exception as err:
+            LOGGER.error(err, exc_info=True)
 
         else:
             LOGGER.info(f'Pulled {image_name}')
             pulled_image_list.append(image_name)
+
+        finally:
+            # close docker session
+            client.close()
 
     return pulled_image_list
 
@@ -111,19 +112,55 @@ def execute_cmd(cmd):
 
 class ECRHandler:
     def __init__(self):
-        self.client = boto3.client('ecr')
+        self.ecr_client = boto3.client('ecr')
         self.params = {'registryId': AWS_ACCOUNT_ID}
+        self.docker_client = docker.DockerClient(
+            base_url='unix:///var/run/docker.sock',
+            version='auto',
+            timeout=60,
+        )
 
-    @classmethod
-    def pull(cls, image_name):
-        """Dockerイメージをダウンロード
+    def pull(self, image_name, username=None, password=None):
+        """Pull Docker image
 
         Args:
-            image_name: Dockerイメージ名
+            image_name: Docker image name
+
+        Returns:
+            image_name (str): docker image name
         """
 
-        cmd = ['docker', 'pull', image_name]
-        return execute_cmd(cmd)
+        try:
+            # pre check if specified docker image is already pulled
+            self.docker_client.images.get(image_name)
+            return image_name
+
+        except (docker.errors.ImageNotFound,
+                docker.errors.APIError):
+            pass
+
+        try:
+            image = self.docker_client.images.pull(
+                image_name,
+                auth_config={
+                    'username': username,
+                    'password': password
+                }
+            )
+
+            pulled_image_name = image.tags[0]
+
+            if pulled_image_name != image_name:
+                raise ImageMismatchedError(f'''
+                    Pulled image: {pulled_image_name}
+                    Expected image: {image_name}
+                ''')
+
+            return pulled_image_name
+
+        except (docker.errors.APIError,
+                ImageMismatchedError) as err:
+            raise err
 
     @classmethod
     def login(cls, region):
@@ -150,7 +187,7 @@ class ECRHandler:
             repositories: 取得したリポジトリを格納するリスト
         """
 
-        responce = self.client.describe_repositories(**params)
+        responce = self.ecr_client.describe_repositories(**params)
         repositories += responce['repositories']
 
         try:
@@ -195,7 +232,7 @@ class ECRHandler:
             params = self.params
 
         image_tags = []
-        response = self.client.describe_images(**params)
+        response = self.ecr_client.describe_images(**params)
 
         for image in response['imageDetails']:
             image_tags += image['imageTags']
