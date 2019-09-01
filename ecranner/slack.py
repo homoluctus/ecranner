@@ -9,6 +9,7 @@ LOGGER = log.get_logger()
 try:
     SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
     SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
+    SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 except KeyError:
     LOGGER.exception(f'"SLACK_WEBHOOK"{msg.ENV_CONFIGURE}')
     sys.exit(1)
@@ -29,9 +30,6 @@ def post(result):
 
     payload = generate_payload(result)
     LOGGER.debug(payload)
-
-    if SLACK_CHANNEL:
-        payload['channel'] = SLACK_CHANNEL
 
     try:
         res = requests.post(SLACK_WEBHOOK, json=payload, timeout=10)
@@ -61,11 +59,20 @@ def generate_payload(result):
         payload (dict)
     """
 
+    payload = {}
     attachments = []
+    color = {'vuln_found': '#cb2431', 'vuln_not_found': '#2cbe4e'}
+
+    if SLACK_CHANNEL:
+        payload['channel'] = SLACK_CHANNEL
+
+    if SLACK_ICON.startswith('http'):
+        payload['icon_url'] = SLACK_ICON
+    else:
+        payload['icon_emoji'] = SLACK_ICON
 
     for item in result:
         tmp_attachment = {
-            'color': '#cb2431',
             'blocks': [
                 {
                     'type': 'section',
@@ -85,10 +92,12 @@ def generate_payload(result):
                     'text': 'Not Found Vulnerabilities'
                 }
             }
+            tmp_attachment['color'] = color['vuln_not_found']
             tmp_attachment['blocks'].append(contents)
 
         else:
             counter = 1
+            tmp_attachment['color'] = color['vuln_found']
 
             for vuln in item['Vulnerabilities']:
                 contents = {
@@ -129,5 +138,6 @@ def generate_payload(result):
 
         attachments.append(tmp_attachment)
 
-    payload = {'attachments': attachments}
+    payload['attachments'] = attachments
+
     return payload
