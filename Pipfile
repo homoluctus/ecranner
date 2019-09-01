@@ -11,6 +11,7 @@ pytest = "*"
 [packages]
 requests = "*"
 boto3 = "*"
+docker = "*"
 
 [requires]
 python_version = "3.7"
