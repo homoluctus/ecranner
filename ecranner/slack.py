@@ -59,7 +59,7 @@ def generate_payload(result):
         payload (dict)
     """
 
-    payload = {}
+    payload = {'username': 'Trivy'}
     attachments = []
     color = {'vuln_found': '#cb2431', 'vuln_not_found': '#2cbe4e'}
 
