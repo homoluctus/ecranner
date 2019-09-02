@@ -9,7 +9,7 @@ def main():
 
     LOGGER.info(msg.START_PROCESS)
 
-    image_list = ecr.run()
+    image_list = ecr.pull_images()
 
     if not image_list:
         LOGGER.info('There are no Docker images to scan')
