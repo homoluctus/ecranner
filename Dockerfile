@@ -10,7 +10,7 @@ RUN curl -L https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VER
 
 FROM docker:19-dind
 RUN apk --no-cache add git python3
-RUN pip3 install --no-cache-dir pipenv awscli && \
+RUN pip3 install --no-cache-dir pipenv && \
     mkdir -p /app/ecranner
 COPY --from=builder /tmp/trivy /usr/local/bin/trivy
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
