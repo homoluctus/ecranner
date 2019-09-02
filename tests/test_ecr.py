@@ -1,43 +1,25 @@
 import pytest
-from ecranner.ecr import (
-    execute_cmd, ECRHandler
-)
-from subprocess import (
-    CompletedProcess, CalledProcessError
-)
-
-
-class TestExecuteCmd:
-    def test_success(self):
-        cmd = ['ls']
-        result = execute_cmd(cmd)
-        assert isinstance(result, CompletedProcess) is True
-        assert result.returncode == 0
-
-    def test_invalid_type_cmd(self):
-        invalid_cmd = {1: 'ls'}
-        with pytest.raises(TypeError):
-            execute_cmd(invalid_cmd)
-
-    def test_failure(self):
-        invalid_cmd = ['ls', '/nonexistance']
-        with pytest.raises(CalledProcessError):
-            execute_cmd(invalid_cmd)
+from ecranner.ecr import ECRHandler
+from docker.errors import APIError as DockerAPIError
 
 
 class TestECRHandler:
     def test_pull(self):
+        # condition: 'alpine:latest' image must not exist
         image_name = 'alpine:latest'
-        result = ECRHandler.pull(image_name)
-        assert isinstance(result, CompletedProcess) is True
-        assert result.returncode == 0
+        client = ECRHandler()
+        result = client.pull(image_name)
+
+        assert result == image_name
+
+        client.docker_client.images.remove(image_name)
+        client.docker_client.close()
 
     def test_pull_nonexistant_image(self):
         image_name = 'nonexistant_image'
-        with pytest.raises(CalledProcessError):
-            ECRHandler.pull(image_name)
+        client = ECRHandler()
 
-    def test_ecr_login(self):
-        result = ECRHandler.login()
-        assert isinstance(result, CompletedProcess) is True
-        assert result.returncode == 0
+        with pytest.raises(DockerAPIError):
+            client.pull(image_name)
+
+        client.docker_client.close()
