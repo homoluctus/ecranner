@@ -18,3 +18,4 @@ python_version = "3.7"
 
 [scripts]
 test = "python -m pytest -v"
+ecranner = "python -m ecranner"
