@@ -4,7 +4,10 @@ import base64
 import boto3
 import docker
 from . import log, msg
-from .exceptions import ImageMismatchedError
+from .exceptions import (
+    ImageMismatchedError,
+    DecodeAuthorizationTokenError
+)
 
 
 LOGGER = log.get_logger()
@@ -120,8 +123,12 @@ class ECRHandler:
         Args:
             token (str): AWS ECR access token (format: base64)
 
+        Returns:
+            decoded_token (str)
+
         Raises:
             TypeError: raises when token is not bytes object
+            DecodeAuthorizationTokenError
         """
 
         if not isinstance(token, str):
@@ -129,7 +136,12 @@ class ECRHandler:
                 f'Expected bytes object but current object is {type(token)}')
 
         bytes_token = base64.b64decode(token)
-        return bytes_token.decode('utf-8')
+        decoded_token = bytes_token.decode('utf-8')
+
+        if not isinstance(decoded_token, str):
+            raise DecodeAuthorizationTokenError
+
+        return decoded_token
 
     def authorize(self):
         """Get AWS ECR authorization access token
