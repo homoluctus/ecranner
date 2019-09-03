@@ -5,8 +5,8 @@ import boto3
 import docker
 from . import log, msg
 from .exceptions import (
-    ImageMismatchedError,
-    DecodeAuthorizationTokenError
+    ImageMismatchedError, LoginRegistryError,
+    DecodeAuthorizationTokenError,
 )
 
 
@@ -139,7 +139,8 @@ class ECRHandler:
         decoded_token = bytes_token.decode('utf-8')
 
         if not isinstance(decoded_token, str):
-            raise DecodeAuthorizationTokenError
+            raise DecodeAuthorizationTokenError(
+                'Failed to decode authorization token')
 
         return decoded_token
 
@@ -190,8 +191,8 @@ class ECRHandler:
             )
             LOGGER.debug(res)
 
-        except Exception as err:
-            raise err
+        except Exception:
+            raise LoginRegistryError('Failed to Login to ECR')
 
     def __get_repositories_recursively(self, params, repositories):
         """Recursively get repositories from AWS ECR
