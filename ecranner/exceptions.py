@@ -4,3 +4,7 @@ class BaseError(Exception):
 
 class ImageMismatchedError(BaseError):
     """Raises error when pulled image is different from expected image"""
+
+
+class DecodeAuthorizationTokenError(BaseError):
+    """Raises error when failed to decode authorization token"""
