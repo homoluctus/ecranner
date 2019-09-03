@@ -8,3 +8,7 @@ class ImageMismatchedError(BaseError):
 
 class DecodeAuthorizationTokenError(BaseError):
     """Raises error when failed to decode authorization token"""
+
+
+class LoginRegistryError(BaseError):
+    """Raises error when failed to login into ECR"""
