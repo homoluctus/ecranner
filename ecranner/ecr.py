@@ -43,7 +43,6 @@ def pull_images():
                     auth_data['username'],
                     auth_data['password']
                 )
-                LOGGER.info(f'Pulled {image_name}')
                 pulled_image_list.append(image_name)
 
     except Exception as err:
@@ -83,6 +82,7 @@ class ECRHandler:
         try:
             # pre check if specified docker image is already pulled
             self.docker_client.images.get(image_name)
+            LOGGER.info(f'{image_name} already exists')
             return image_name
 
         except (docker.errors.ImageNotFound,
@@ -102,6 +102,7 @@ class ECRHandler:
                 image_name,
                 auth_config=auth_config
             )
+            LOGGER.info(f'Pulled {image_name}')
 
             pulled_image_name = image.tags[0]
 
