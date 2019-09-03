@@ -226,7 +226,7 @@ class ECRHandler:
             image_tags: ECR.Client.describe_imagesの返り値のimageTagsを格納するリスト
         """
         if not params:
-            params = self.params
+            params = self.params.copy()
 
         image_tags = []
         response = self.ecr_client.describe_images(**params)
