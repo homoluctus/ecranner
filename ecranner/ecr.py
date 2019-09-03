@@ -20,10 +20,11 @@ except KeyError:
 
 
 def pull_images():
-    """Pull Docker images in ECR
+    """Pull Docker images in AWS ECR
 
     Returns:
-        pulled_image_list (list)
+        pulled_image_list (list): returns empty list if failed to pull
+                                  docker image or target image does not exist
     """
 
     pulled_image_list = []
@@ -114,10 +115,10 @@ class ECRHandler:
             raise err
 
     def __decode_token(self, token):
-        """Decode ECR access token
+        """Decode AWS ECR access token
 
         Args:
-            token (str): ECR access token (format: base64)
+            token (str): AWS ECR access token (format: base64)
 
         Raises:
             TypeError: raises when token is not bytes object
@@ -131,7 +132,7 @@ class ECRHandler:
         return bytes_token.decode('utf-8')
 
     def authorize(self):
-        """Get ECR authorization access token
+        """Get AWS ECR authorization access token
 
         Returns:
             authorization_data (dict): includes username, password and registry
@@ -162,7 +163,7 @@ class ECRHandler:
             raise err
 
     def login(self, username, password, registry):
-        """Login to ECR registry
+        """Login to AWS ECR registry
 
         Raises:
             Exception
@@ -181,34 +182,35 @@ class ECRHandler:
             raise err
 
     def __get_repositories_recursively(self, params, repositories):
-        """ECRから全リポジトリを再帰的に取得(self.get_repositoriesで使用する)
+        """Recursively get repositories from AWS ECR
+        Used self.get_repositories
 
         Args:
-            params: ECR.Client.describe_repositoriesのパラメーター
-            repositories: 取得したリポジトリを格納するリスト
+            params (dict): the parameter of ECR.Client.describe_repositories
+            repositories (list): list to store gotten repositories
         """
 
-        responce = self.ecr_client.describe_repositories(**params)
-        repositories += responce['repositories']
+        response = self.ecr_client.describe_repositories(**params)
+        repositories += response['repositories']
 
         try:
-            if responce['nextToken']:
-                # nextTokenがセットされていれば再帰する
-                params['nextToken'] = responce['nextToken']
+            if response['nextToken']:
+                params['nextToken'] = response['nextToken']
                 self.__get_repositories_recursively(params, repositories)
         except KeyError:
             pass
 
     def get_repositories(self, params={}):
-        """ECRから全リポジトリを取得
+        """Fetch all repository from AWS ECR
 
         Args:
-            params: ECR.Client.describe_repositoriesのパラメーター
+            params (dict): parameter of ECR.Client.describe_repositories()
 
         Returns:
-            repositories:
-                ECR.Client.describe_repositoriesの返り値に含まれるrepositoriesリスト
+            repositories (list): list includes the return value of
+                                 ECR.Client.describe_repositories()
         """
+
         if not params:
             params = self.params.copy()
 
@@ -217,14 +219,16 @@ class ECRHandler:
         return repositories
 
     def get_image_tags(self, params={}):
-        """イメージのタグを取得
+        """Get image tag
 
         Args:
-            params: ECR.Client.describe_imagesのパラメーター
+            params (dict): parameter of ECR.Client.describe_images()
 
         Returns:
-            image_tags: ECR.Client.describe_imagesの返り値のimageTagsを格納するリスト
+            image_tags (list): store the return value 'imageTags' of
+                               ECR.Client.describe_images()
         """
+
         if not params:
             params = self.params.copy()
 
@@ -237,11 +241,12 @@ class ECRHandler:
         return image_tags
 
     def tag_exists(self, tag_list, target_tag):
-        """Dockerイメージのタグに特定のタグが存在するかチェック
+        """Check if docker image includes target tag
 
         Args:
-            tag_list: ECR.Client.describe_imagesによって取得したイメージタグリスト
-            target_tag: 対象のイメージタグ
+            tag_list (list): docker image tag list that is the return value
+                             of ECR.Client.describe_images()
+            target_tag (str): target docker image tag
 
         Returns:
             boolean
@@ -252,10 +257,10 @@ class ECRHandler:
             return False
 
     def get_image_uris(self):
-        """DockerイメージのURIをECRから取得
+        """Get docker image URI from AWS ECR
 
         Returns:
-            image_uris: イメージのURIを格納したリスト
+            image_uris (list)
         """
 
         repositories = self.get_repositories()
@@ -267,13 +272,14 @@ class ECRHandler:
         return image_uris
 
     def get_image_uris_filtered_by_tag(self, tag):
-        """イメージタグによってフィルタリングされたイメージURIリストを取得
+        """Get docker image URI from AWS ECR and
+        filter by docker image tag
 
         Args:
-            tag: 対象のイメージタグ
+            tag (str): docker image tag
 
         Returns:
-            image_uris_with_tag: 対象のイメージタグをもつイメージのURIを格納するリスト
+            image_uris_with_tag (list): docker image URI list
         """
 
         repositories = self.get_repositories()
