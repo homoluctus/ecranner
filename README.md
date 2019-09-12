@@ -1,10 +1,13 @@
 # ECRanner
+
+![](https://github.com/homoluctus/ecranner/workflows/Lint%20Check/badge.svg)
+
 This is that scan the vulnerability of Docker images stored in ECR.<br>
 
 ## Feature
 - Pull Docker Image From ECR
 - Vulnerability Scan
-  - [Trivy](https://github.com/knqyf263/trivy) detects software (OS package and application library) vulnerabilities in Docker Image
+  - [Trivy](https://github.com/aquasecurity/trivy) detects software (OS package and application library) vulnerabilities in Docker Image
 - Slack Integration
   - Push vulnerability information to Slack. Slack UI is as following:
 
