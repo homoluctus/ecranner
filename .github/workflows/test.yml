@@ -42,10 +42,12 @@ jobs:
       - name: Execute Test
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: python -m pytest -q
 
       - name: Notify Result to Slack
         uses: homoluctus/slatify@master
+        if: always()
         with:
           type: ${{ job.status }}
           job_name: ':white_flower: *Pytest*'
