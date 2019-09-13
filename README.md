@@ -1,7 +1,6 @@
 # ECRanner
 
-![](https://github.com/homoluctus/ecranner/workflows/Lint%20Check/badge.svg)
-![](https://github.com/homoluctus/ecranner/workflows/Test/badge.svg)
+![](https://github.com/homoluctus/ecranner/workflows/Lint%20and%20Test/badge.svg)
 
 This is that scan the vulnerability of Docker images stored in ECR.<br>
 
