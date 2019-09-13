@@ -40,7 +40,9 @@ jobs:
           sudo chmod +x /usr/local/bin/trivy
 
       - name: Execute Test
-        run: python -m pytest
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        run: python -m pytest -q
 
       - name: Notify Result to Slack
         uses: homoluctus/slatify@master
