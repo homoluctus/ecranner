@@ -27,8 +27,9 @@ def pull_images():
     """Pull Docker images in AWS ECR
 
     Returns:
-        pulled_image_list (list): returns empty list if failed to pull
-                                  docker image or target image does not exist
+        pulled_image_list (list):
+            Returns empty list if failed to pull docker image
+            or target image does not exist
     """
 
     pulled_image_list = []
@@ -77,7 +78,7 @@ class ECRHandler:
             password (str)
 
         Returns:
-            image_name (str): docker image name
+            image_name (str): Docker image name
         """
 
         try:
@@ -262,8 +263,9 @@ class ECRHandler:
         """Check if docker image includes target tag
 
         Args:
-            tag_list (list): docker image tag list that is the return value
-                             of ECR.Client.describe_images()
+            tag_list (list):
+                Docker image tag list that is the return value
+                of ECR.Client.describe_images()
             target_tag (str): target docker image tag
 
         Returns:
