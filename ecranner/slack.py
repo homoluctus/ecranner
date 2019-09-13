@@ -19,7 +19,7 @@ def post(result):
     """Post to Slack
 
     Args:
-        result: scann result
+        result (list): scann result
 
     Returns:
         boolean
@@ -28,7 +28,7 @@ def post(result):
     if not isinstance(result, list):
         return False
 
-    payload = generate_payload(result)
+    payload = _generate_payload(result)
     LOGGER.debug(payload)
 
     try:
@@ -49,11 +49,11 @@ def post(result):
         return False
 
 
-def generate_payload(result):
+def _generate_payload(result):
     """Generate payload for slack
 
     Args:
-        result (dict): the result of scan using trivy
+        result (list): the result of scan using trivy
 
     Returns:
         payload (dict)
@@ -72,16 +72,9 @@ def generate_payload(result):
         payload['icon_emoji'] = SLACK_ICON
 
     for item in result:
+        payload['text'] = f'*{item.get("Target")}*'
         tmp_attachment = {
-            'blocks': [
-                {
-                    'type': 'section',
-                    'text': {
-                        'type': 'mrkdwn',
-                        'text': '*{}*'.format(item['Target'])
-                    }
-                }
-            ]
+            'blocks': []
         }
 
         if item['Vulnerabilities'] is None:
@@ -132,8 +125,7 @@ def generate_payload(result):
                 }
 
                 contents['fields'].append(reference_field)
-                tmp_attachment['blocks'].append(
-                    contents)
+                tmp_attachment['blocks'].append(contents)
                 counter += 1
 
         attachments.append(tmp_attachment)
