@@ -15,11 +15,12 @@ LOGGER = log.get_logger()
 
 try:
     AWS_ACCOUNT_ID = os.environ['AWS_ACCOUNT_ID']
-    AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
-    IMAGE_TAG = os.getenv('IMAGE_TAG', 'latest')
 except KeyError:
     LOGGER.exception(f'"AWS_ACCOUNT_ID": {msg.ENV_CONFIGURE}')
     sys.exit(1)
+
+AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
+IMAGE_TAG = os.getenv('IMAGE_TAG', 'latest')
 
 
 def pull_images():
