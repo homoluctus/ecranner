@@ -1,0 +1,49 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    paths:
+      - ecranner
+      - tests
+      - Dockerfile
+      - Pipfile*
+
+jobs:
+  test:
+    name: pytest
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Setup Python3
+        uses: actions/setup-python@v1
+        with:
+          version: '3.7'
+          architecture: 'x64'
+
+      - name: Install Dependencies
+        run: |
+          pip install -U pip pipenv pytest
+          pipenv install --system --clear
+
+      - name: Install Trivy
+        run: |
+          curl -L https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -o trivy.tar.gz
+          tar xzvf trivy.tar.gz
+          sudo mv trivy /usr/local/bin/trivy
+          sudo chmod +x /usr/local/bin/trivy
+
+      - name: Execute Test
+        run: python -m pytest
+
+      - name: Notify Result to Slack
+        uses: homoluctus/slatify@master
+        with:
+          type: ${{ job.status }}
+          job_name: ':white_flower: *Pytest*'
+          channel: '#develop'
+          url: ${{ secrets.SLACK_WEBHOOK }}
