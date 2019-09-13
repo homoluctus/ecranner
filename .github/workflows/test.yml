@@ -14,7 +14,7 @@ on:
 
 jobs:
   test:
-    name: pytest
+    name: Test
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
@@ -31,6 +31,8 @@ jobs:
           pipenv install --system --clear
 
       - name: Install Trivy
+        env:
+          TRIVY_VERSION: '0.1.6'
         run: |
           curl -L https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz -o trivy.tar.gz
           tar xzvf trivy.tar.gz
