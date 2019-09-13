@@ -180,7 +180,7 @@ class ECRHandler:
         """Login to AWS ECR registry
 
         Raises:
-            Exception
+            LoginRegistryError
         """
 
         try:
@@ -218,11 +218,13 @@ class ECRHandler:
         """Fetch all repository from AWS ECR
 
         Args:
-            params (dict): parameter of ECR.Client.describe_repositories()
+            params (dict):
+                parameter of ECR.Client.describe_repositories()
 
         Returns:
-            repositories (list): list includes the return value of
-                                 ECR.Client.describe_repositories()
+            repositories (list):
+                list includes the return value of
+                ECR.Client.describe_repositories()
         """
 
         if not params:
@@ -239,8 +241,9 @@ class ECRHandler:
             params (dict): parameter of ECR.Client.describe_images()
 
         Returns:
-            image_tags (list): store the return value 'imageTags' of
-                               ECR.Client.describe_images()
+            image_tags (list):
+                store the return value 'imageTags' of
+                ECR.Client.describe_images()
         """
 
         if not params:
