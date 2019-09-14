@@ -12,3 +12,7 @@ class DecodeAuthorizationTokenError(BaseError):
 
 class LoginRegistryError(BaseError):
     """Raises error when failed to login into ECR"""
+
+
+class SlackNotificationError(BaseError):
+    """Raises error when a response code from Slack is not 200"""
