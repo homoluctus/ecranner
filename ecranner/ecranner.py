@@ -23,6 +23,6 @@ def main():
         if result is None:
             continue
 
-        slack.post(result)
+        slack.post(result, image)
 
     LOGGER.info(msg.FINISH_PROCESS)
