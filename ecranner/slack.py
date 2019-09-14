@@ -1,6 +1,8 @@
 import os
 import sys
 import requests
+import concurrent.futures as confu
+
 from . import log, msg
 from .exceptions import SlackNotificationError
 
@@ -17,29 +19,57 @@ SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 
 
-def post(payload):
+def post(payloads, max_workers=None, timeout=60):
     """Post to Slack
 
     Args:
+        payloads (dict, list): Be thread mode when type(payloads) is list
+        max_workers (int): The number of thread
+        timeout (int): Time (seconds) to wait for the response
+
+    Returns:
+        True or list contains True or Exceptions
+        Retuns list when runs with multi thread mode
+
+    Raises:
+        TypeError
+        SlackNotificationError
+        Exception
+    """
+
+    if isinstance(payloads, dict):
+        return __post_single_payload(payloads, timeout)
+
+    elif isinstance(payloads, list):
+        if len(payloads) == 1:
+            return __post_single_payload(payloads[0], timeout)
+        else:
+            return __post_with_thread_mode(payloads, max_workers, timeout)
+
+    else:
+        raise TypeError(f'''
+            Expected type is "dict" or "list",
+            but the given argument type is "{type(payloads)}"
+        ''')
+
+
+def __post_single_payload(payload, timeout):
+    """This method is executed in internal post method
+
+    Args:
         payload (dict)
+        timeout (int): Time (seconds) to wait for the response
 
     Returns:
         boolean
 
     Raises:
-        TypeError: payload is not dict type
         SlackNotificationError: failed to post payload to Slack
         Exception
     """
 
     try:
-        if not isinstance(payload, dict):
-            raise TypeError(f'''
-                Expected type is "dict",
-                but the given argument type is "{type(payload)}"
-            ''')
-
-        res = requests.post(SLACK_WEBHOOK, json=payload, timeout=10)
+        res = requests.post(SLACK_WEBHOOK, json=payload, timeout=timeout)
 
         if res.status_code != 200:
             raise SlackNotificationError(f'''
@@ -51,9 +81,40 @@ def post(payload):
         raise err
 
     else:
-        LOGGER.info('Posted to slack')
         LOGGER.debug(f'Response from slack: {res}')
         return True
+
+
+def __post_with_thread_mode(payloads, max_workers, timeout):
+    """Post to Slack with thread mode
+
+    Args:
+        payloads (list)
+        max_workers (int): The number of thread
+        timeout (int): Time (seconds) to wait for the response
+
+    Returns:
+        results: Contains True or Exceptions
+    """
+
+    results = []
+
+    with confu.ThreadPoolExecutor(max_workers=max_workers) as thread:
+        future_to_response = {
+            thread.submit(
+                __post_single_payload,
+                payload,
+                timeout
+            ): payload for payload in payloads
+        }
+
+        for future in confu.as_completed(future_to_response):
+            try:
+                results.append(future.result())
+            except Exception as err:
+                results.append(err)
+
+        return results
 
 
 def generate_payload(results, image_name=''):

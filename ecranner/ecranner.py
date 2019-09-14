@@ -16,14 +16,40 @@ def main():
         LOGGER.info(msg.FINISH_PROCESS)
         return
 
-    LOGGER.info('Scanning Docker images')
+    payloads = []
+
+    LOGGER.info('Scanning...')
+
     for image in image_list:
         results = trivy.run(image)
 
         if results is None:
             continue
 
-        payload = slack.generate_payload(results, image)
-        slack.post(payload)
+        payloads.append(slack.generate_payload(results, image))
+
+    LOGGER.info('Finised Scan')
+
+    LOGGER.info('Posting to Slack...')
+
+    result = slack.post(payloads)
+
+    LOGGER.info('Posted result to Slack')
+
+    if isinstance(result, list):
+        failure_num = exception_exists(result)
+        suffix = 'scan result messages'
+        LOGGER.info(f'''
+            SUCCESS: {len(result) - failure_num} {suffix}
+            FAILURE: {failure_num} {suffix}
+        ''')
 
     LOGGER.info(msg.FINISH_PROCESS)
+
+
+def exception_exists(results):
+    exc = list(
+        filter(lambda result: isinstance(result, Exception), results)
+    )
+    num = len(list(exc))
+    return num if num >= 1 else False
