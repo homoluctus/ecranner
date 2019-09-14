@@ -2,7 +2,7 @@
 
 set -e
 
-sh -c "dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375 &"
+sh -c "dockerd -H unix:///var/run/docker.sock -H tcp://127.0.0.1:2375 --log-level error &"
 pgrep docker > /dev/null
 STATUS=`echo $?`
 
