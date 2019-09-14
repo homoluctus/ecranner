@@ -8,18 +8,20 @@ LOGGER = log.get_logger()
 
 try:
     SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
-    SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
-    SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 except KeyError:
     LOGGER.exception(f'"SLACK_WEBHOOK"{msg.ENV_CONFIGURE}')
     sys.exit(1)
 
+SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
+SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 
-def post(result):
+
+def post(result, image_name=''):
     """Post to Slack
 
     Args:
         result (list): scann result
+        image_name (str): used as payload text message
 
     Returns:
         boolean
@@ -28,7 +30,7 @@ def post(result):
     if not isinstance(result, list):
         return False
 
-    payload = _generate_payload(result)
+    payload = _generate_payload(result, image_name)
     LOGGER.debug(payload)
 
     try:
@@ -49,19 +51,23 @@ def post(result):
         return False
 
 
-def _generate_payload(result):
+def _generate_payload(result, image_name=''):
     """Generate payload for slack
 
     Args:
         result (list): the result of scan using trivy
+        image_name (str): used as payload text message
 
     Returns:
         payload (dict)
     """
 
-    payload = {'username': 'Trivy'}
     attachments = []
+    payload = {'username': 'Trivy'}
     color = {'vuln_found': '#cb2431', 'vuln_not_found': '#2cbe4e'}
+
+    if image_name != '':
+        payload['text'] = f'*{image_name.split("/")[0]}*'
 
     if SLACK_CHANNEL:
         payload['channel'] = SLACK_CHANNEL
@@ -72,9 +78,25 @@ def _generate_payload(result):
         payload['icon_emoji'] = SLACK_ICON
 
     for item in result:
-        payload['text'] = f'*{item.get("Target")}*'
+        target_name = item.get('Target')
+        suffix_target_name = target_name.split('/')[-1]
+
+        if image_name != '' and image_name not in target_name:
+            # for application dependencies tool
+            title = f'*{image_name.split("/")[-1]} - {suffix_target_name}*'
+        else:
+            title = f'*{suffix_target_name}*'
+
         tmp_attachment = {
-            'blocks': []
+            'blocks': [
+                {
+                    'type': 'section',
+                    'text': {
+                        'type': 'mrkdwn',
+                        'text': title
+                    }
+                }
+            ]
         }
 
         if item['Vulnerabilities'] is None:
@@ -119,13 +141,16 @@ def _generate_payload(result):
                 for ref in vuln['References']:
                     references += f'- {ref}\n'
 
-                reference_field = {
-                    'type': 'mrkdwn',
-                    'text': '*Reference*\n{}'.format(references)
+                reference_section = {
+                    'type': 'section',
+                    'text': {
+                        'type': 'mrkdwn',
+                        'text': f'*Reference*\n{references}'
+                    }
                 }
 
-                contents['fields'].append(reference_field)
                 tmp_attachment['blocks'].append(contents)
+                tmp_attachment['blocks'].append(reference_section)
                 counter += 1
 
         attachments.append(tmp_attachment)
