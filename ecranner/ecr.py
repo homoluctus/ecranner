@@ -38,6 +38,7 @@ def pull_images():
         with ECRHandler() as ecr:
             auth_data = ecr.authorize()
             ecr.login(**auth_data)
+            LOGGER.info(f'ECRへ{msg.LOGIN_SUCCESS}')
             image_list = ecr.get_image_uris_filtered_by_tag(IMAGE_TAG)
             for image_name in image_list:
                 ecr.pull(
@@ -192,10 +193,12 @@ class ECRHandler:
                 registry=registry,
                 reauth=True
             )
-            LOGGER.debug(res)
 
         except Exception:
             raise LoginRegistryError('Failed to Login to ECR')
+
+        else:
+            LOGGER.debug(res)
 
     def __get_repositories_recursively(self, params, repositories):
         """Recursively get repositories from AWS ECR
