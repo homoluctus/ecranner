@@ -128,7 +128,7 @@ class ECRHandler:
             token (str): AWS ECR access token (format: base64)
 
         Returns:
-            decoded_token (str)
+            access_token (tuple): Includes username, password
 
         Raises:
             TypeError: raises when token is not bytes object
@@ -146,7 +146,8 @@ class ECRHandler:
             raise DecodeAuthorizationTokenError(
                 'Failed to decode authorization token')
 
-        return decoded_token
+        access_token = tuple(decoded_token.split(':'))
+        return access_token
 
     def authorize(self):
         """Get AWS ECR authorization access token
@@ -163,10 +164,9 @@ class ECRHandler:
                 registryIds=[self.params['registryId']]
             )
 
-            access_token = self.__decode_token(
+            username, password = self.__decode_token(
                 res['authorizationData'][0]['authorizationToken'])
             registry_url = res['authorizationData'][0]['proxyEndpoint']
-            username, password = access_token.split(':')
 
             authorization_data = {
                 'username': username,
