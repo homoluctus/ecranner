@@ -18,11 +18,12 @@ def main():
 
     LOGGER.info('Scanning Docker images')
     for image in image_list:
-        result = trivy.run(image)
+        results = trivy.run(image)
 
-        if result is None:
+        if results is None:
             continue
 
-        slack.post(result, image)
+        payload = slack.generate_payload(results, image)
+        slack.post(payload)
 
     LOGGER.info(msg.FINISH_PROCESS)

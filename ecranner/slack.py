@@ -2,6 +2,7 @@ import os
 import sys
 import requests
 from . import log, msg
+from .exceptions import SlackNotificationError
 
 
 LOGGER = log.get_logger()
@@ -16,51 +17,70 @@ SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 
 
-def post(result, image_name=''):
+def post(payload):
     """Post to Slack
 
     Args:
-        result (list): scann result
-        image_name (str): used as payload text message
+        payload (dict)
 
     Returns:
         boolean
+
+    Raises:
+        TypeError: payload is not dict type
+        SlackNotificationError: failed to post payload to Slack
+        Exception
     """
 
-    if not isinstance(result, list):
-        return False
-
-    payload = _generate_payload(result, image_name)
-    LOGGER.debug(payload)
-
     try:
+        if not isinstance(payload, dict):
+            raise TypeError(f'''
+                Expected type is "dict",
+                but the given argument type is "{type(payload)}"
+            ''')
+
         res = requests.post(SLACK_WEBHOOK, json=payload, timeout=10)
 
         if res.status_code != 200:
-            raise Exception(f'''
+            raise SlackNotificationError(f'''
                 Failed to post message to slack
-                Response from slack: {res}
+                Response code from slack: {res.status_code}
             ''')
 
+    except Exception as err:
+        raise err
+
+    else:
         LOGGER.info('Posted to slack')
         LOGGER.debug(f'Response from slack: {res}')
         return True
 
-    except Exception as err:
-        LOGGER.error(err, exc_info=True)
-        return False
 
-
-def _generate_payload(result, image_name=''):
-    """Generate payload for slack
+def generate_payload(results, image_name=''):
+    """Generate payload for Slack
 
     Args:
-        result (list): the result of scan using trivy
-        image_name (str): used as payload text message
+        results (list): The result of scan using trivy
+        image_name (str): Used as payload text message
 
     Returns:
         payload (dict)
+
+    Raises:
+        TypeError
     """
+
+    if not isinstance(results, list):
+        raise TypeError(f'''
+                Expected type is "list",
+                but the given argument type is "{type(results)}"
+        ''')
+
+    if not isinstance(image_name, str):
+        raise TypeError(f'''
+                Expected type is "str",
+                but the given argument type is "{type(image_name)}"
+        ''')
 
     attachments = []
     payload = {'username': 'Trivy'}
@@ -77,7 +97,7 @@ def _generate_payload(result, image_name=''):
     else:
         payload['icon_emoji'] = SLACK_ICON
 
-    for item in result:
+    for item in results:
         target_name = item.get('Target')
         suffix_target_name = target_name.split('/')[-1]
 
