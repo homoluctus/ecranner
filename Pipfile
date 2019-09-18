@@ -12,6 +12,7 @@ pytest = "*"
 requests = "*"
 boto3 = "*"
 docker = "*"
+pyyaml = "*"
 
 [requires]
 python_version = "3.7"
