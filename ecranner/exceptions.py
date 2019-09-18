@@ -16,3 +16,7 @@ class LoginRegistryError(BaseError):
 
 class SlackNotificationError(BaseError):
     """Raises error when a response code from Slack is not 200"""
+
+
+class ConfigSyntaxError(BaseError):
+    """Configuration YAML syntax error"""
