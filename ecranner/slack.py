@@ -1,5 +1,4 @@
 import os
-import sys
 import requests
 import concurrent.futures as confu
 
@@ -8,12 +7,13 @@ from .exceptions import SlackNotificationError
 
 
 LOGGER = log.get_logger()
+SLACK_FLAG = 1
 
 try:
     SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
 except KeyError:
-    LOGGER.exception(f'"SLACK_WEBHOOK"{msg.ENV_CONFIGURE}')
-    sys.exit(1)
+    LOGGER.info(f'"SLACK_WEBHOOK"{msg.ENV_CONFIGURE}')
+    SLACK_FLAG = 0
 
 SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
@@ -28,14 +28,20 @@ def post(payloads, max_workers=None, timeout=60):
         timeout (int): Time (seconds) to wait for the response
 
     Returns:
-        True or list contains True or Exceptions
-        Retuns list when runs with multi thread mode
+        True
+        None: If SLACK_FLAG = 0 (means not post to slack)
+        List: Contains True or Exceptions
+              Returns list when runs with multi thread mode
 
     Raises:
         TypeError
         SlackNotificationError
         Exception
     """
+
+    if not SLACK_FLAG:
+        LOGGER.info('Not post the results to Slack')
+        return None
 
     if isinstance(payloads, dict):
         return __post_single_payload(payloads, timeout)
@@ -44,6 +50,7 @@ def post(payloads, max_workers=None, timeout=60):
         if len(payloads) == 1:
             return __post_single_payload(payloads[0], timeout)
         else:
+            # runs with multi thread mode
             return __post_with_thread_mode(payloads, max_workers, timeout)
 
     else:
