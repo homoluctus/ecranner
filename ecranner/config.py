@@ -114,7 +114,7 @@ class EnvFileLoader(FileLoader):
 
         try:
             with open(self.filename) as f:
-                lines = f.read()
+                lines = f.readlines()
 
         except FileNotFoundError as err:
             raise err
@@ -125,8 +125,8 @@ class EnvFileLoader(FileLoader):
         logger.debug(f'Loaded environment variables from {self.filename}')
 
         for line in lines:
-            key, value = line.split('=')
-            self.env_vars[key] = value
+            env_list = line.split('=', maxsplit=1)
+            self.env_vars[env_list[0]] = env_list[1].rstrip('\n')
 
         return True
 
