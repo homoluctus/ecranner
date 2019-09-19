@@ -20,3 +20,7 @@ class SlackNotificationError(BaseError):
 
 class ConfigSyntaxError(BaseError):
     """Configuration YAML syntax error"""
+
+
+class ConfigurationError(BaseError):
+    """Configuration error occurs"""
