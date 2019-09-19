@@ -3,9 +3,7 @@ import yaml
 from pathlib import Path
 
 from .log import get_logger
-from .exceptions import (
-    ConfigurationError, NotAFileError
-)
+from .exceptions import ConfigurationError
 
 
 logger = get_logger()
@@ -17,42 +15,6 @@ class FileLoader:
     def __init__(self, filename):
         self.filename = filename
 
-    @staticmethod
-    def exists(filename):
-        """Check if filename exists
-
-        Args:
-            filename (str, pathlib.Path)
-
-        Returns:
-            True: File exists
-
-        Raises:
-            TypeError
-            FileNotFoundError
-            NotAFileError
-        """
-
-        if not isinstance(filename, (Path, str)):
-            raise TypeError('Expected pathlib.Path or str object')
-
-        if not isinstance(filename, Path):
-            filename = Path(filename)
-
-        if not filename.exists():
-            raise FileNotFoundError(f'{filename} does not exist')
-
-        if not filename.is_file():
-            raise NotAFileError(f'{filename} is not a file')
-
-        logger.debug(f'{filename} exists and is a file')
-        return True
-
-    def load(self):
-        """Load a file"""
-
-        raise NotImplementedError()
-
     @property
     def filepath(self):
         """Convert from filename to pathlib.Path instance
@@ -63,9 +25,46 @@ class FileLoader:
 
         return Path(self.filename)
 
+    def find(self, default_filename=''):
+        """Find dot env file
+
+        Returns:
+            filename (str): if the filename is found
+
+        Raises:
+            FileNotFoundError
+        """
+
+        if self.filename == '' and default_filename != '':
+            self.filename = str(Path.cwd().joinpath(default_filename))
+
+        if not self.exists():
+            raise FileNotFoundError(f'{self.filename} could not be found')
+
+        return self.filename
+
+    def exists(self):
+        """Check if self.filename exists and is a file
+
+        Returns:
+            boolean
+        """
+
+        path = self.filepath
+
+        if not path.exists() or not path.is_file():
+            return False
+
+        return True
+
+    def load(self):
+        """Load a file"""
+
+        raise NotImplementedError()
+
 
 class YAMLLoader(FileLoader):
-    def __init__(self, filename='ecranner.yml'):
+    def __init__(self, filename):
         super().__init__(filename)
 
     def load(self):
@@ -98,19 +97,6 @@ class EnvFileLoader(FileLoader):
     def __init__(self, filename=''):
         super().__init__(filename)
         self.env_vars = {}
-
-    def find(self):
-        """Find dot env file
-
-        Returns:
-            filename (str): path to dot env file if find
-        """
-
-        if self.filename == '':
-            self.filename = str(Path.cwd().joinpath('.env'))
-
-        if self.exists():
-            return self.filename
 
     def load(self):
         """Load env file
@@ -169,10 +155,8 @@ class EnvFileLoader(FileLoader):
             boolean
         """
 
-        try:
-            self.exists()
-        except Exception as err:
-            raise err
+        if not self.exists():
+            return False
 
         suffix_filename = self.filepath.name
 

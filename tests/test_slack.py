@@ -6,7 +6,7 @@ from ecranner.exceptions import SlackNotificationError
 
 class TestGeneratePayload:
     def test_success(self):
-        with open('tests/test1.json') as f:
+        with open('tests/assets/test1.json') as f:
             valid_data = json.load(f)
 
         payload = generate_payload(valid_data)
@@ -23,7 +23,7 @@ class TestSlackNotification:
     def test_post_vuln_data(self):
         """Post Vulnerability information"""
 
-        with open('tests/test1.json') as f:
+        with open('tests/assets/test1.json') as f:
             vulns = json.load(f)
 
         payload = generate_payload(vulns)
@@ -33,7 +33,7 @@ class TestSlackNotification:
     def test_post_vuln_is_null(self):
         """Post data like 'Vulnerabilities': null"""
 
-        with open('tests/test2.json') as f:
+        with open('tests/assets/test2.json') as f:
             no_vulns = json.load(f)
 
         payload = generate_payload(no_vulns)
@@ -53,10 +53,10 @@ class TestSlackNotification:
             post(type_error_payload)
 
     def test_mutile_thread_mode(self):
-        with open('tests/test1.json') as f:
+        with open('tests/assets/test1.json') as f:
             data1 = json.load(f)
 
-        with open('tests/test2.json') as f:
+        with open('tests/assets/test2.json') as f:
             data2 = json.load(f)
 
         payloads = [
@@ -73,7 +73,7 @@ class TestSlackNotification:
     def test_mutile_thread_mode_with_exception(self):
         """Check if the return value of slack.post contains Exception object"""
 
-        with open('tests/test2.json') as f:
+        with open('tests/assets/test2.json') as f:
             data = json.load(f)
 
         payloads = [
