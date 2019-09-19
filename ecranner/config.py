@@ -64,7 +64,7 @@ class FileLoader:
 
 
 class YAMLLoader(FileLoader):
-    def __init__(self, filename):
+    def __init__(self, filename='ecranner.yml'):
         super().__init__(filename)
 
     def load(self):
@@ -94,7 +94,7 @@ class YAMLLoader(FileLoader):
 
 
 class EnvFileLoader(FileLoader):
-    def __init__(self, filename=''):
+    def __init__(self, filename='.env'):
         super().__init__(filename)
         self.env_vars = {}
 
