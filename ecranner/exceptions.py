@@ -24,3 +24,7 @@ class ConfigSyntaxError(BaseError):
 
 class ConfigurationError(BaseError):
     """Configuration error occurs"""
+
+
+class NotAFileError(BaseError):
+    """Specified filepath does not mean file"""
