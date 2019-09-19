@@ -12,7 +12,7 @@ class TestECRHandler:
 
         assert result == image_name
 
-        client.docker_client.images.remove(image_name)
+        client.remove(image_name)
         client.docker_client.close()
 
     def test_pull_nonexistant_image(self):

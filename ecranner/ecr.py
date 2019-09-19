@@ -4,6 +4,7 @@ import base64
 import boto3
 import docker
 from . import log, msg
+from .docker import DockerHandler
 from .exceptions import (
     ImageMismatchedError, LoginRegistryError,
     DecodeAuthorizationTokenError,
@@ -54,21 +55,11 @@ def pull_images():
     return pulled_image_list
 
 
-class ECRHandler:
+class ECRHandler(DockerHandler):
     def __init__(self):
+        super().__init__()
         self.ecr_client = boto3.client('ecr')
         self.params = {'registryId': AWS_ACCOUNT_ID}
-        self.docker_client = docker.DockerClient(
-            base_url='unix:///var/run/docker.sock',
-            version='auto',
-            timeout=60,
-        )
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *exc):
-        self.docker_client.close()
 
     def pull(self, image_name, username=None, password=None):
         """Pull Docker image
