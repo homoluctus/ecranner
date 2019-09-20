@@ -74,6 +74,11 @@ class TestYAMLLoader:
         with pytest.raises(ConfigurationNotFoundError):
             loader.load()
 
+    def test_default_config_path(self):
+        expected_path = pathlib.Path.cwd().joinpath('ecranner.yml')
+        result = YAMLLoader.default_config_path
+        assert result == expected_path
+
 
 class TestEnvFileLoader:
     def test_load(self):
@@ -100,6 +105,11 @@ class TestEnvFileLoader:
         assert result is True
         assert os.environ['TEST'] == 'THIS_IS_TEST'
         assert os.environ['HELLO'] == 'WORLD=!'
+
+    def test_default_dot_env_path(self):
+        expected_path = pathlib.Path.cwd().joinpath('.env')
+        result = EnvFileLoader.default_dot_env_path
+        assert result == expected_path
 
 
 def test_load_yaml():
