@@ -123,8 +123,18 @@ class YAMLLoader(FileLoader):
             False
         """
 
-        default_filename = str(Path.cwd().joinpath('ecranner.yml'))
-        return cls._find(filename, default_filename)
+        return cls._find(filename, cls.default_config_path)
+
+    @staticmethod
+    @property
+    def default_config_path():
+        """Get default filename
+
+        Returns:
+            default configuration file path
+        """
+
+        return str(Path.cwd().joinpath('ecranner.yml'))
 
 
 class EnvFileLoader(FileLoader):
@@ -263,25 +273,35 @@ class EnvFileLoader(FileLoader):
         """Find dot env file
 
         Args:
-            filename (str)
+            filename(str)
 
         Returns:
-            filename (str)
+            filename(str)
             False
         """
 
-        default_filename = str(Path.cwd().joinpath('.env'))
-        return cls._find(filename, default_filename)
+        return cls._find(filename, cls.default_dot_env_path)
+
+    @staticmethod
+    @property
+    def default_dot_env_path():
+        """Get default filename
+
+        Returns:
+            default configuration file path
+        """
+
+        return str(Path.cwd().joinpath('.env'))
 
 
 def load_yaml(filename=''):
     """Load configuration from YAML file
 
     Args:
-        filename (str)
+        filename(str)
 
     Returns:
-        config (dict)
+        config(dict)
     """
 
     config_filepath = YAMLLoader.find_config(filename)
@@ -300,7 +320,7 @@ def load_dot_env(filename=''):
     set parameters as system environment variables
 
     Args:
-        filename (str)
+        filename(str)
 
     Returns:
         boolean

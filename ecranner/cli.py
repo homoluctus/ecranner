@@ -1,5 +1,7 @@
 import argparse
 
+from .config import YAMLLoader, EnvFileLoader
+
 
 def parse_args():
     """Generate a parser to analyse the arguments
@@ -26,7 +28,7 @@ def parse_args():
     parser.add_argument(
         '-f',
         '--file',
-        default='ecranner.yml',
+        default=YAMLLoader.default_config_path,
         help='filepath to configuration in YAML'
     )
 
@@ -40,6 +42,12 @@ def parse_args():
         '--slack',
         action='store_true',
         help='send the scan result to Slack'
+    )
+
+    parser.add_argument(
+        '--env-file',
+        default=EnvFileLoader.default_dot_env_path,
+        help='specify .env file path'
     )
 
     args = parser.parse_args()
