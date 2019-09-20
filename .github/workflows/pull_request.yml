@@ -64,6 +64,13 @@ jobs:
           sudo mv trivy /usr/local/bin/trivy
           sudo chmod +x /usr/local/bin/trivy
 
+      - name: Create dot env file for test
+        runs: |
+          cat << EOF >> .env
+          HELLO=WORLD
+          THIS=IS_TEST
+          EOF
+
       - name: Execute Test
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
