@@ -3,7 +3,10 @@ import yaml
 from pathlib import Path
 
 from .log import get_logger
-from .exceptions import ConfigurationError, EnvFileNotFoundError
+from .exceptions import (
+    ConfigurationError, EnvFileNotFoundError,
+    ConfigurationNotFoundError
+)
 
 
 logger = get_logger()
@@ -25,34 +28,46 @@ class FileLoader:
 
         return Path(self.filename)
 
-    def find(self, default_filename=''):
-        """Find dot env file
+    @classmethod
+    def _find(cls, filename, default_filename=''):
+        """Find self.filename
+        If self.filename is '', default_filename is set as self.filename
 
         Returns:
             filename (str): if the filename is found
-
-        Raises:
-            FileNotFoundError
+            False: if the filename can not be found
         """
 
-        if self.filename == '' and default_filename != '':
-            self.filename = str(Path.cwd().joinpath(default_filename))
+        if not filename and default_filename:
+            filename = str(Path.cwd().joinpath(default_filename))
 
-        if not self.exists():
-            raise FileNotFoundError(f'{self.filename} could not be found')
+        if not cls.exists(filename):
+            return False
 
-        return self.filename
+        return filename
 
-    def exists(self):
-        """Check if self.filename exists and is a file
+    @staticmethod
+    def exists(filename):
+        """Check if filename exists and is a file
+
+        Args:
+            filename (str, pathlib.Path)
 
         Returns:
             boolean
         """
 
-        path = self.filepath
+        if not isinstance(filename, (str, Path)):
+            logger.debug(
+                f'The given argument type is {type(filename)} \
+                (Expected str type)'
+            )
+            return False
 
-        if not path.exists() or not path.is_file():
+        if isinstance(filename, str):
+            filename = Path(filename)
+
+        if not filename.exists() or not filename.is_file():
             return False
 
         return True
@@ -77,20 +92,39 @@ class YAMLLoader(FileLoader):
             FileNotFoundError
             ConfigurationError: raises if exceptions except
                                 FileNotFoundError occurs
+            ConfigurationNotFoundError
         """
+
+        if not self.exists(self.filename):
+            raise ConfigurationNotFoundError(
+                f'Could not found configuration \
+                YAML file {repr(self.filename)}'
+            )
 
         try:
             with open(self.filename) as f:
                 return yaml.safe_load(f)
-
-        except FileNotFoundError as err:
-            raise err
 
         except Exception as err:
             raise ConfigurationError(f'{err.__class__.__name__}: {err}')
 
         else:
             logger.debug(f'Loaded configuration from {repr(self.filename)}')
+
+    @classmethod
+    def find_config(cls, filename=''):
+        """Find configuration YAML file
+
+        Args:
+            filename (str)
+
+        Returns:
+            filename
+            False
+        """
+
+        default_filename = str(Path.cwd().joinpath('ecranner.yml'))
+        return cls._find(filename, default_filename)
 
 
 class EnvFileLoader(FileLoader):
@@ -101,11 +135,13 @@ class EnvFileLoader(FileLoader):
         """Load env file
 
         Returns:
-            env_vars (dict)
+            env_vars(dict)
 
         Raises:
+            TypeError
             FileNotFoundError
             ConfigurationError
+            EnvFileNotFoundError
         """
 
         if not self.is_hidden():
@@ -113,7 +149,7 @@ class EnvFileLoader(FileLoader):
                 f'env_file {repr(self.filename)} should be as a hidden file'
             )
 
-        if not self.exists():
+        if not self.exists(self.filename):
             raise EnvFileNotFoundError(
                 f'Env file {repr(self.filename)} could not be found'
             )
@@ -142,7 +178,7 @@ class EnvFileLoader(FileLoader):
         """Split environment variable
 
         Args:
-            env (str)
+            env(str)
 
         Returns:
             tuple(key, value)
@@ -169,8 +205,8 @@ class EnvFileLoader(FileLoader):
         """Set as environment variable
 
         Args:
-            key (str)
-            value (str)
+            key(str)
+            value(str)
             override(boolean): allow to override existing environment variable.
 
         Returns:
@@ -191,7 +227,7 @@ class EnvFileLoader(FileLoader):
         """Set environment variable from dict
 
         Args:
-            env_vars (dict): dict object stored envrionment variable
+            env_vars(dict): dict object stored envrionment variable
 
         Returns:
             boolean
@@ -215,12 +251,66 @@ class EnvFileLoader(FileLoader):
             boolean
         """
 
-        if not self.exists():
-            return False
+        filename = self.filepath
 
-        suffix_filename = self.filepath.name
-
-        if not suffix_filename.startswith('.'):
+        if not filename.name.startswith('.'):
             return False
 
         return True
+
+    @classmethod
+    def find_dot_env(cls, filename=''):
+        """Find dot env file
+
+        Args:
+            filename (str)
+
+        Returns:
+            filename (str)
+            False
+        """
+
+        default_filename = str(Path.cwd().joinpath('.env'))
+        return cls._find(filename, default_filename)
+
+
+def load_yaml(filename=''):
+    """Load configuration from YAML file
+
+    Args:
+        filename (str)
+
+    Returns:
+        config (dict)
+    """
+
+    config_filepath = YAMLLoader.find_config(filename)
+
+    if not config_filepath:
+        raise ConfigurationNotFoundError(
+            'Could not found configuration YAML file'
+        )
+    loader = YAMLLoader(config_filepath)
+    config = loader.load()
+    return config
+
+
+def load_dot_env(filename=''):
+    """Load dot env file and then
+    set parameters as system environment variables
+
+    Args:
+        filename (str)
+
+    Returns:
+        boolean
+    """
+
+    dot_env_filepath = EnvFileLoader.find_dot_env(filename)
+
+    if not dot_env_filepath:
+        raise EnvFileNotFoundError('Could not found .env file')
+
+    loader = EnvFileLoader(dot_env_filepath)
+    env_vars = loader.load()
+    return loader.set_env_from_dict(env_vars)

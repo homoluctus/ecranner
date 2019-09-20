@@ -2,10 +2,12 @@ import os
 import pathlib
 import pytest
 from ecranner.config import (
-    YAMLLoader, EnvFileLoader, FileLoader
+    YAMLLoader, EnvFileLoader, FileLoader,
+    load_yaml, load_dot_env
 )
 from ecranner.exceptions import (
-    ConfigurationError, EnvFileNotFoundError
+    ConfigurationError, EnvFileNotFoundError,
+    ConfigurationNotFoundError
 )
 
 
@@ -21,28 +23,29 @@ class TestFileLoader:
         assert isinstance(path, pathlib.Path) is True
         assert str(path) == file_loader.filename
 
-    def test_find(self, file_loader):
-        result = file_loader.find()
-        assert result == 'tests/assets/test_valid.yml'
+    def test_find(self):
+        target_file = 'tests/assets/test_valid.yml'
+        result = FileLoader._find(target_file)
+        assert result == target_file
 
     def test_find_default_filename(self):
-        file_loader = FileLoader('')
         target_file = 'tests/assets/test_valid.yml'
-        result = file_loader.find(default_filename=target_file)
-        assert result == str(pathlib.Path(target_file).absolute())
+        expected_result = str(pathlib.Path.cwd().joinpath(target_file))
+        result = FileLoader._find('', default_filename=target_file)
+        assert result == expected_result
 
     def test_find_invalid(self):
-        file_loader = FileLoader('NOT_FOUND')
-        with pytest.raises(FileNotFoundError):
-            file_loader.find()
+        result = FileLoader._find('NOT_FOUND')
+        assert result is False
 
-    def test_exists(self, file_loader):
-        result = file_loader.exists()
+    def test_exists(self):
+        target_file = 'tests/assets/test_valid.yml'
+        result = FileLoader.exists(target_file)
         assert result is True
 
     def test_exists_return_false(self):
-        file_loader = FileLoader('NOT_FOUND')
-        result = file_loader.exists()
+        target_file = 'NOT_FOUND'
+        result = FileLoader.exists(target_file)
         assert result is False
 
 
@@ -68,11 +71,11 @@ class TestYAMLLoader:
     def test_load_nonexistance(self):
         loader = YAMLLoader('NOT_FOUND.yml')
 
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(ConfigurationNotFoundError):
             loader.load()
 
 
-class Test_EnvFileLoader:
+class TestEnvFileLoader:
     def test_load(self):
         expected_env_vars = {
             'TEST': 'THIS_IS_TEST',
@@ -97,3 +100,42 @@ class Test_EnvFileLoader:
         assert result is True
         assert os.environ['TEST'] == 'THIS_IS_TEST'
         assert os.environ['HELLO'] == 'WORLD=!'
+
+
+def test_load_yaml():
+    expected_result = {
+        'test': {
+            'this': ['is', 'a', 'test']
+        },
+        'hello': 'world'
+    }
+
+    config_filepath = 'tests/assets/test_valid.yml'
+    result = load_yaml(config_filepath)
+    assert result == expected_result
+
+
+def test_load_yaml_default():
+    result = load_yaml()
+    assert isinstance(result, dict)
+
+
+def test_load_yaml_not_found():
+    with pytest.raises(ConfigurationNotFoundError):
+        load_yaml('NOT_FOUND')
+
+
+def test_load_dot_env():
+    dot_env_filepath = 'tests/assets/.valid_env'
+    result = load_dot_env(dot_env_filepath)
+    assert result is True
+
+
+def test_load_dot_env_default():
+    result = load_dot_env()
+    assert result is True
+
+
+def test_load_dot_env_not_found():
+    with pytest.raises(EnvFileNotFoundError):
+        load_dot_env('NOT_FOUND')
