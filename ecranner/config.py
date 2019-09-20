@@ -3,7 +3,7 @@ import yaml
 from pathlib import Path
 
 from .log import get_logger
-from .exceptions import ConfigurationError
+from .exceptions import ConfigurationError, EnvFileNotFoundError
 
 
 logger = get_logger()
@@ -96,13 +96,12 @@ class YAMLLoader(FileLoader):
 class EnvFileLoader(FileLoader):
     def __init__(self, filename='.env'):
         super().__init__(filename)
-        self.env_vars = {}
 
     def load(self):
         """Load env file
 
         Returns:
-            True
+            env_vars (dict)
 
         Raises:
             FileNotFoundError
@@ -110,41 +109,102 @@ class EnvFileLoader(FileLoader):
         """
 
         if not self.is_hidden():
-            logger.warning('env_file should be as a hidden file')
+            logger.warning(
+                f'env_file {repr(self.filename)} should be as a hidden file'
+            )
 
-        try:
-            with open(self.filename) as f:
-                lines = f.readlines()
+        if not self.exists():
+            raise EnvFileNotFoundError(
+                f'Env file {repr(self.filename)} could not be found'
+            )
 
-        except FileNotFoundError as err:
-            raise err
+        env_vars = {}
+        with open(self.filename) as f:
+            for line in f:
+                line = line.strip()
 
-        except Exception as err:
-            raise ConfigurationError(f'{err.__class__.__name__}: {err}')
+                if line.startswith('#') or not line:
+                    continue
+
+                key, value = self.split_env(line)
+
+                if key in env_vars:
+                    logger.warning(
+                        f'Found duplicate environment variable {repr(key)}'
+                    )
+
+                env_vars[key] = value
 
         logger.debug(f'Loaded environment variables from {self.filename}')
+        return env_vars
 
-        for line in lines:
-            env_list = line.split('=', maxsplit=1)
-            self.env_vars[env_list[0]] = env_list[1].rstrip('\n')
+    def split_env(self, env):
+        """Split environment variable
 
-        return True
+        Args:
+            env (str)
 
-    def set_env(self, override=False):
+        Returns:
+            tuple(key, value)
+
+        Raises:
+            TypeErorr
+            ConfigurationError
+        """
+
+        if not isinstance(env, str):
+            raise TypeError(
+                f'Expected str object, but the argument is {type(env)} object')
+
+        key, value = env.split('=', maxsplit=1)
+
+        if ' ' in key:
+            raise ConfigurationError(f'Environment variable name {repr(key)} \
+                                    can not contain whitespace')
+
+        return (key, value)
+
+    @staticmethod
+    def set_env(key, value, override=False):
         """Set as environment variable
 
         Args:
-            override (boolean): allow to override existing environment variable
+            key (str)
+            value (str)
+            override(boolean): allow to override existing environment variable.
 
         Returns:
-            True
+            boolean:
+                return True if succeed that set as a environment variable.
+                return False if key is already set as environment variable
+                and override option is False.
         """
 
-        for key, value in self.env_vars.items():
-            if key in os.environ and not override:
-                continue
+        if key in os.environ and not override:
+            return False
 
-            os.environ[key] = value
+        os.environ[key] = value
+        return True
+
+    @staticmethod
+    def set_env_from_dict(env_vars={}, override=False):
+        """Set environment variable from dict
+
+        Args:
+            env_vars (dict): dict object stored envrionment variable
+
+        Returns:
+            boolean
+        """
+
+        if not isinstance(env_vars, dict):
+            raise TypeError(
+                f'Expected dict object, \
+                but argument is {type(env_vars)} object'
+            )
+
+        for key, value in env_vars.items():
+            EnvFileLoader.set_env(key, value, override)
 
         return True
 

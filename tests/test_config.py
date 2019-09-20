@@ -4,7 +4,9 @@ import pytest
 from ecranner.config import (
     YAMLLoader, EnvFileLoader, FileLoader
 )
-from ecranner.exceptions import ConfigurationError
+from ecranner.exceptions import (
+    ConfigurationError, EnvFileNotFoundError
+)
 
 
 @pytest.fixture()
@@ -77,19 +79,20 @@ class Test_EnvFileLoader:
             'HELLO': 'WORLD=!'
         }
         loader = EnvFileLoader('tests/assets/.valid_env')
-        result = loader.load()
-        assert result is True
-        assert loader.env_vars == expected_env_vars
+        env_vars = loader.load()
+
+        assert isinstance(env_vars, dict)
+        assert env_vars == expected_env_vars
 
     def test_load_nonexistance(self):
         loader = EnvFileLoader('NOT_FOUND')
-        with pytest.raises(FileNotFoundError):
+        with pytest.raises(EnvFileNotFoundError):
             loader.load()
 
     def test_set_env(self):
         loader = EnvFileLoader('tests/assets/.valid_env')
-        loader.load()
-        result = loader.set_env()
+        env_vars = loader.load()
+        result = loader.set_env_from_dict(env_vars)
 
         assert result is True
         assert os.environ['TEST'] == 'THIS_IS_TEST'
