@@ -26,6 +26,10 @@ class ConfigurationError(BaseError):
     """Configuration error occurs"""
 
 
+class ConfigurationNotFoundError(BaseError):
+    """Configuration could not be found"""
+
+
 class NotAFileError(BaseError):
     """Specified filepath does not mean file"""
 
