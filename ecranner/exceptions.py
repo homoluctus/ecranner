@@ -28,3 +28,7 @@ class ConfigurationError(BaseError):
 
 class NotAFileError(BaseError):
     """Specified filepath does not mean file"""
+
+
+class EnvFileNotFoundError(BaseError):
+    """Raises error when env_file could not be found"""
