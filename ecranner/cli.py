@@ -1,13 +1,18 @@
 import argparse
 
+from .log import get_logger
+from .ecranner import run
 from .config import YAMLLoader, EnvFileLoader
+
+
+logger = get_logger()
 
 
 def parse_args():
     """Generate a parser to analyse the arguments
 
     Returns:
-        args
+        vars(args): dictionary stored arguments
     """
 
     parser = argparse.ArgumentParser(
@@ -52,4 +57,14 @@ def parse_args():
 
     args = parser.parse_args()
 
-    return args
+    return vars(args)
+
+
+def cli():
+    args = parse_args()
+
+    try:
+        run(args)
+    except KeyboardInterrupt:
+        logger.warning('Forced terninamtion')
+        return 1
