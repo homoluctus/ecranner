@@ -28,7 +28,7 @@ def parse_args():
     parser.add_argument(
         '-f',
         '--file',
-        default=YAMLLoader.default_config_path,
+        default=YAMLLoader.default_config_path(),
         help='filepath to configuration in YAML'
     )
 
@@ -46,7 +46,7 @@ def parse_args():
 
     parser.add_argument(
         '--env-file',
-        default=EnvFileLoader.default_dot_env_path,
+        default=EnvFileLoader.default_dot_env_path(),
         help='specify .env file path'
     )
 
