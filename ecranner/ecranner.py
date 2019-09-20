@@ -4,7 +4,7 @@ from . import trivy, ecr, msg, log, slack
 LOGGER = log.get_logger()
 
 
-def main():
+def run(kwargs={}):
     """Execute scan and post scan result to slack"""
 
     LOGGER.info(msg.START_PROCESS)
