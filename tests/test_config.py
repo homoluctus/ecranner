@@ -156,7 +156,7 @@ def test_load_dot_env_default_not_found():
     assert result is False
 
     if EnvFileLoader.exists(bk_file):
-        pathlib.Path(bk_file).rename('.env')
+        pathlib.Path(bk_file).rename(EnvFileLoader.DEFAULT_FILENAME)
 
 
 def test_load_dot_env_not_found():
