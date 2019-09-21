@@ -1,5 +1,3 @@
-import os
-import sys
 import base64
 import boto3
 import docker
@@ -9,50 +7,9 @@ from .exceptions import (
     ImageMismatchedError, LoginRegistryError,
     DecodeAuthorizationTokenError,
 )
+from .config import EnvFileLoader
 
-
-LOGGER = log.get_logger()
-
-
-try:
-    AWS_ACCOUNT_ID = os.environ['AWS_ACCOUNT_ID']
-except KeyError:
-    LOGGER.exception(f'"AWS_ACCOUNT_ID": {msg.ENV_CONFIGURE}')
-    sys.exit(1)
-
-AWS_DEFAULT_REGION = os.getenv('AWS_DEFAULT_REGION', 'us-east-1')
-IMAGE_TAG = os.getenv('IMAGE_TAG', 'latest')
-
-
-def pull_images():
-    """Pull Docker images in AWS ECR
-
-    Returns:
-        pulled_image_list (list):
-            Returns empty list if failed to pull docker image
-            or target image does not exist
-    """
-
-    pulled_image_list = []
-
-    try:
-        with ECRHandler() as ecr:
-            auth_data = ecr.authorize()
-            ecr.login(**auth_data)
-            LOGGER.info(f'ECRへ{msg.LOGIN_SUCCESS}')
-            image_list = ecr.get_image_uris_filtered_by_tag(IMAGE_TAG)
-            for image_name in image_list:
-                ecr.pull(
-                    image_name,
-                    auth_data['username'],
-                    auth_data['password']
-                )
-                pulled_image_list.append(image_name)
-
-    except Exception as err:
-        LOGGER.error(err, exc_info=True)
-
-    return pulled_image_list
+logger = log.get_logger()
 
 
 class ECRHandler(DockerHandler):
@@ -76,7 +33,7 @@ class ECRHandler(DockerHandler):
         try:
             # pre check if specified docker image is already pulled
             self.docker_client.images.get(image_name)
-            LOGGER.info(f'{image_name} already exists')
+            logger.info(f'{image_name} already exists')
             return image_name
 
         except (docker.errors.ImageNotFound,
@@ -96,7 +53,7 @@ class ECRHandler(DockerHandler):
                 image_name,
                 auth_config=auth_config
             )
-            LOGGER.info(f'Pulled {image_name}')
+            logger.info(f'Pulled {image_name}')
 
             pulled_image_name = image.tags[0]
 
@@ -189,7 +146,7 @@ class ECRHandler(DockerHandler):
             raise LoginRegistryError(f'Failed to Login to ECR: {err}')
 
         else:
-            LOGGER.debug(res)
+            logger.debug(res)
 
     def __get_repositories_recursively(self, params, repositories):
         """Recursively get repositories from AWS ECR
@@ -311,3 +268,79 @@ class ECRHandler(DockerHandler):
                 image_uris_with_tag.append(image_uri)
 
         return image_uris_with_tag
+
+
+def pull(config):
+    """Pull Docker images in AWS ECR
+
+    Args:
+        config (dict): includes aws credentials and image names want to pull
+
+    Returns:
+        pulled_image_list (list):
+            Returns empty list if failed to pull docker image
+            or target image does not exist
+    """
+
+    pulled_image_list = []
+
+    try:
+        with ECRHandler() as ecr:
+            auth_data = ecr.authorize()
+            ecr.login(**auth_data)
+            logger.info(f'ECRへ{msg.LOGIN_SUCCESS}')
+            image_list = ecr.get_image_uris_filtered_by_tag(IMAGE_TAG)
+            for image_name in image_list:
+                ecr.pull(
+                    image_name,
+                    auth_data['username'],
+                    auth_data['password']
+                )
+                pulled_image_list.append(image_name)
+
+    except Exception as err:
+        logger.error(err, exc_info=True)
+
+    return pulled_image_list
+
+
+def set_credentials_as_env(config, override=False):
+    """Set aws credentials as system environment variable
+
+    Args:
+        config (dict)
+        override (boolean)
+
+    Returns:
+        boolean
+
+    Raises:
+        TypeError
+    """
+
+    credentials = extract_credentials(config)
+    return EnvFileLoader.set_env_from_dict(credentials, override)
+
+
+def extract_credentials(config):
+    """Extract aws credentials from config
+
+    Args:
+        config (dict)
+
+    Returns:
+        aws_credentials (dict)
+    """
+
+    params = [
+        'aws_access_key_id',
+        'aws_secret_access_key',
+        'aws_default_region'
+    ]
+
+    aws_credentials = {
+        str(key).upper(): str(config[key])
+        for key in config.keys() if key in params
+    }
+
+    return aws_credentials
