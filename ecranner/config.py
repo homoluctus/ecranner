@@ -20,7 +20,7 @@ class FileLoader:
 
     @property
     def filepath(self):
-        """Convert from filename to pathlib.Path instance
+        """Convert from filename to pathlib.Path instance.
 
         Retuns:
             pathlib.Path instance
@@ -30,8 +30,8 @@ class FileLoader:
 
     @classmethod
     def _find(cls, filename, default_filename=''):
-        """Find self.filename
-        If self.filename is '', default_filename is set as self.filename
+        """Find self.filename.
+        If self.filename is '', default_filename is set as self.filename.
 
         Returns:
             filename (str): if the filename is found
@@ -48,7 +48,7 @@ class FileLoader:
 
     @staticmethod
     def exists(filename):
-        """Check if filename exists and is a file
+        """Check if filename exists and is a file.
 
         Args:
             filename (str, pathlib.Path)
@@ -85,7 +85,7 @@ class YAMLLoader(FileLoader):
         super().__init__(filename)
 
     def load(self):
-        """Load configuration YAML file
+        """Load configuration YAML file.
 
         Returns:
             dict object loaded from config
@@ -115,7 +115,7 @@ class YAMLLoader(FileLoader):
 
     @classmethod
     def find_config(cls, filename=''):
-        """Find configuration YAML file
+        """Find configuration YAML file.
 
         Args:
             filename (str)
@@ -145,7 +145,7 @@ class EnvFileLoader(FileLoader):
         super().__init__(filename)
 
     def load(self):
-        """Load env file
+        """Load env file.
 
         Returns:
             env_vars(dict)
@@ -188,7 +188,7 @@ class EnvFileLoader(FileLoader):
         return env_vars
 
     def split_env(self, env):
-        """Split environment variable
+        """Split environment variable.
 
         Args:
             env(str)
@@ -215,7 +215,7 @@ class EnvFileLoader(FileLoader):
 
     @staticmethod
     def set_env(key, value, override=False):
-        """Set as environment variable
+        """Set as environment variable.
 
         Args:
             key(str)
@@ -237,7 +237,7 @@ class EnvFileLoader(FileLoader):
 
     @staticmethod
     def set_env_from_dict(env_vars={}, override=False):
-        """Set environment variable from dict
+        """Set environment variable from dict.
 
         Args:
             env_vars(dict): dict object stored envrionment variable
@@ -258,7 +258,7 @@ class EnvFileLoader(FileLoader):
         return True
 
     def is_hidden(self):
-        """Check if self.filename is hidden file
+        """Check if self.filename is hidden file.
 
         Returns:
             boolean
@@ -273,7 +273,7 @@ class EnvFileLoader(FileLoader):
 
     @classmethod
     def find_dot_env(cls, filename=''):
-        """Find dot env file
+        """Find dot env file.
 
         Args:
             filename(str)
@@ -287,7 +287,7 @@ class EnvFileLoader(FileLoader):
 
     @classmethod
     def default_dot_env_path(cls):
-        """Get default filename
+        """Get default filename.
 
         Returns:
             default configuration file path
@@ -296,8 +296,8 @@ class EnvFileLoader(FileLoader):
         return Path.cwd().joinpath(cls.DEFAULT_FILENAME)
 
 
-def load_yaml(filename=YAMLLoader.DEFAULT_FILENAME):
-    """Load configuration from YAML file
+def load_yaml(filename=None):
+    """Load configuration from YAML file.
 
     Args:
         filename(str)
@@ -317,9 +317,12 @@ def load_yaml(filename=YAMLLoader.DEFAULT_FILENAME):
     return config
 
 
-def load_dot_env(filename=EnvFileLoader.DEFAULT_FILENAME):
-    """Load dot env file and then
-    set parameters as system environment variables
+def load_dot_env(filename=None):
+    """Load dot env file and then set parameters
+    as system environment variables.
+    If .env file is found when filename is not specified,
+    load this file automatically.
+
 
     Args:
         filename(str)
@@ -331,12 +334,12 @@ def load_dot_env(filename=EnvFileLoader.DEFAULT_FILENAME):
     dot_env_filepath = EnvFileLoader.find_dot_env(filename)
 
     if not dot_env_filepath:
-        if filename != EnvFileLoader.DEFAULT_FILENAME:
-            raise EnvFileNotFoundError(f'Could not found {repr(filename)}')
-        else:
-            logger.info(
-                f'Could not found {repr(EnvFileLoader.DEFAULT_FILENAME)} file')
+        if filename is None:
+            logger.debug(
+                f'Could not found {repr(EnvFileLoader.DEFAULT_FILENAME)}')
             return False
+        else:
+            raise EnvFileNotFoundError(f'Could not found {repr(filename)}')
 
     logger.info(f'Found {dot_env_filepath}')
 

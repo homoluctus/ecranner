@@ -2,7 +2,7 @@ import argparse
 
 from .log import get_logger
 from .ecranner import run
-from .config import YAMLLoader, EnvFileLoader
+from .config import YAMLLoader
 
 
 logger = get_logger()
@@ -17,8 +17,9 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         prog='ECRanner',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         description='''
-            Scan Docker images stored in AWS ECR
+            Scan Docker images stored in AWS ECR.
             Trivy is used as Vulnerability Scanner
         ''',
         allow_abbrev=False
@@ -51,8 +52,11 @@ def parse_args():
 
     parser.add_argument(
         '--env-file',
-        default=EnvFileLoader.default_dot_env_path(),
-        help='specify .env file path'
+        help='''
+            specify .env file path
+            (automatically load .env file
+            if this file is found in current directory)
+        '''
     )
 
     args = parser.parse_args()
