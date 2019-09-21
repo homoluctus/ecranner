@@ -79,7 +79,7 @@ class FileLoader:
 
 
 class YAMLLoader(FileLoader):
-    default_filename = 'ecranner.yml'
+    DEFAULT_FILENAME = 'ecranner.yml'
 
     def __init__(self, filename='ecranner.yml'):
         super().__init__(filename)
@@ -125,7 +125,7 @@ class YAMLLoader(FileLoader):
             False
         """
 
-        return cls._find(filename, cls.default_filename)
+        return cls._find(filename, cls.DEFAULT_FILENAME)
 
     @classmethod
     def default_config_path(cls):
@@ -135,11 +135,11 @@ class YAMLLoader(FileLoader):
             default configuration file path
         """
 
-        return Path.cwd().joinpath(cls.default_filename)
+        return Path.cwd().joinpath(cls.DEFAULT_FILENAME)
 
 
 class EnvFileLoader(FileLoader):
-    default_filename = '.env'
+    DEFAULT_FILENAME = '.env'
 
     def __init__(self, filename='.env'):
         super().__init__(filename)
@@ -283,7 +283,7 @@ class EnvFileLoader(FileLoader):
             False
         """
 
-        return cls._find(filename, cls.default_filename)
+        return cls._find(filename, cls.DEFAULT_FILENAME)
 
     @classmethod
     def default_dot_env_path(cls):
@@ -293,7 +293,7 @@ class EnvFileLoader(FileLoader):
             default configuration file path
         """
 
-        return Path.cwd().joinpath(cls.default_filename)
+        return Path.cwd().joinpath(cls.DEFAULT_FILENAME)
 
 
 def load_yaml(filename=''):
