@@ -253,7 +253,14 @@ class EnvFileLoader(FileLoader):
             )
 
         for key, value in env_vars.items():
-            EnvFileLoader.set_env(key, value, override)
+            result = EnvFileLoader.set_env(key, value, override)
+
+            if result:
+                logger.debug(f'Set {key} as system environment variable')
+            else:
+                logger.debug(
+                    f'Faild to set {key} as system environment variable'
+                )
 
         return True
 
