@@ -1,4 +1,4 @@
-from . import trivy, ecr, msg, log, slack
+from . import trivy, ecr, msg, log, slack, utils
 
 
 LOGGER = log.get_logger()
@@ -37,7 +37,7 @@ def run(kwargs={}):
     LOGGER.info('Posted result to Slack')
 
     if isinstance(result, list):
-        failure_num = exception_exists(result)
+        failure_num = utils.exception_exists(result)
         suffix = 'scan result messages'
         LOGGER.info(f'''
             SUCCESS: {len(result) - failure_num} {suffix}
@@ -45,11 +45,3 @@ def run(kwargs={}):
         ''')
 
     LOGGER.info(msg.FINISH_PROCESS)
-
-
-def exception_exists(results):
-    exc = list(
-        filter(lambda result: isinstance(result, Exception), results)
-    )
-    num = len(list(exc))
-    return num if num >= 1 else False
