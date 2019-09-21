@@ -6,8 +6,16 @@ class ImageMismatchError(BaseError):
     """Raises error when pulled image is different from expected image"""
 
 
+class AuthorizationError(BaseError):
+    """Raises erorr when failed to get authorization token"""
+
+
 class DecodeAuthorizationTokenError(BaseError):
     """Raises error when failed to decode authorization token"""
+
+
+class ExtractAccountIDError(BaseError):
+    """Raises error when could not extract account id"""
 
 
 class LoginRegistryError(BaseError):
