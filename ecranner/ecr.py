@@ -185,8 +185,8 @@ class ECRHandler(DockerHandler):
                 reauth=True
             )
 
-        except Exception:
-            raise LoginRegistryError('Failed to Login to ECR')
+        except Exception as err:
+            raise LoginRegistryError(f'Failed to Login to ECR: {err}')
 
         else:
             LOGGER.debug(res)
