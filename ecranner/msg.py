@@ -1,8 +1,0 @@
-START_PROCESS = 'START'
-FAIL_PROCESS = 'FAIL'
-FINISH_PROCESS = 'FINISH'
-LOGIN_SUCCESS = 'Succeeded login'
-ERROR = 'Erorr occured'
-TIMEOUT = 'Timeout HTTP request'
-ENV_CONFIGURE = 'Please configure environment variable'
-CMD_EXECUTION_ERROR = 'Failed to execute a command'

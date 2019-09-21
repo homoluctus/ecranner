@@ -1,7 +1,7 @@
 import base64
 import boto3
 import docker
-from . import log, msg
+from .log import get_logger
 from .docker import DockerHandler
 from .exceptions import (
     ImageMismatchedError, LoginRegistryError,
@@ -9,7 +9,7 @@ from .exceptions import (
 )
 from .config import EnvFileLoader
 
-logger = log.get_logger()
+logger = get_logger()
 
 
 class ECRHandler(DockerHandler):
@@ -288,7 +288,7 @@ def pull(config):
         with ECRHandler() as ecr:
             auth_data = ecr.authorize()
             ecr.login(**auth_data)
-            logger.info(f'ECRへ{msg.LOGIN_SUCCESS}')
+            logger.info(f'Succeded login to ECR')
             image_list = ecr.get_image_uris_filtered_by_tag(IMAGE_TAG)
             for image_name in image_list:
                 ecr.pull(

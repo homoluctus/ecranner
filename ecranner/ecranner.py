@@ -1,19 +1,20 @@
-from . import trivy, ecr, msg, log, slack, utils
+from . import trivy, ecr, slack, utils
+from .log import get_logger
 
 
-LOGGER = log.get_logger()
+LOGGER = get_logger()
 
 
 def run(kwargs={}):
     """Execute scan and post scan result to slack"""
 
-    LOGGER.info(msg.START_PROCESS)
+    LOGGER.info('START ECRanner')
 
     image_list = ecr.pull_images()
 
     if not image_list:
         LOGGER.info('There are no Docker images to scan')
-        LOGGER.info(msg.FINISH_PROCESS)
+        LOGGER.info('TERMINATE')
         return
 
     payloads = []
@@ -44,4 +45,4 @@ def run(kwargs={}):
             FAILURE: {failure_num} {suffix}
         ''')
 
-    LOGGER.info(msg.FINISH_PROCESS)
+    LOGGER.info('TERMINATE')

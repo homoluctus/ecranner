@@ -1,8 +1,8 @@
 import json
 import subprocess
-from . import log, msg
+from .log import get_logger
 
-LOGGER = log.get_logger()
+LOGGER = get_logger()
 
 
 def run(image_name):
@@ -30,11 +30,11 @@ def run(image_name):
 
     except (subprocess.CalledProcessError,
             subprocess.TimeoutExpired) as err:
-        LOGGER.info(msg.CMD_EXECUTION_ERROR)
+        LOGGER.info('Failed to execute trivy command')
         LOGGER.error(err.cmd)
         LOGGER.error(err.stderr)
         return None
 
-    except Exception:
-        LOGGER.exception(msg.ERROR)
+    except Exception as err:
+        LOGGER.error(err)
         return None

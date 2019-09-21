@@ -2,17 +2,20 @@ import os
 import requests
 import concurrent.futures as confu
 
-from . import log, msg
+from .log import get_logger
 from .exceptions import SlackNotificationError
 
 
-LOGGER = log.get_logger()
+LOGGER = get_logger()
 SLACK_FLAG = 1
 
 try:
     SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
 except KeyError:
-    LOGGER.info(f'"SLACK_WEBHOOK"{msg.ENV_CONFIGURE}')
+    LOGGER.info('''
+        Missing "SLACK_WEBHOOK"
+        Please configure "SLACK_WEBHOOK" as environment variable
+    ''')
     SLACK_FLAG = 0
 
 SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
