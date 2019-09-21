@@ -71,4 +71,4 @@ def cli():
         run(args)
     except KeyboardInterrupt:
         logger.warning('Forced terninamtion')
-        return 1
+        return False
