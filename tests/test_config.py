@@ -146,6 +146,19 @@ def test_load_dot_env_default():
     assert result is True
 
 
+def test_load_dot_env_default_not_found():
+    bk_file = '.env.test_bk'
+    dot_env_path = pathlib.Path(EnvFileLoader.DEFAULT_FILENAME)
+    if dot_env_path.exists():
+        dot_env_path.rename(bk_file)
+
+    result = load_dot_env()
+    assert result is False
+
+    if EnvFileLoader.exists(bk_file):
+        pathlib.Path(bk_file).rename('.env')
+
+
 def test_load_dot_env_not_found():
     with pytest.raises(EnvFileNotFoundError):
         load_dot_env('NOT_FOUND')

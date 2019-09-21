@@ -296,7 +296,7 @@ class EnvFileLoader(FileLoader):
         return Path.cwd().joinpath(cls.DEFAULT_FILENAME)
 
 
-def load_yaml(filename=''):
+def load_yaml(filename=YAMLLoader.DEFAULT_FILENAME):
     """Load configuration from YAML file
 
     Args:
@@ -317,7 +317,7 @@ def load_yaml(filename=''):
     return config
 
 
-def load_dot_env(filename=''):
+def load_dot_env(filename=EnvFileLoader.DEFAULT_FILENAME):
     """Load dot env file and then
     set parameters as system environment variables
 
@@ -331,7 +331,14 @@ def load_dot_env(filename=''):
     dot_env_filepath = EnvFileLoader.find_dot_env(filename)
 
     if not dot_env_filepath:
-        raise EnvFileNotFoundError('Could not found .env file')
+        if filename != EnvFileLoader.DEFAULT_FILENAME:
+            raise EnvFileNotFoundError(f'Could not found {repr(filename)}')
+        else:
+            logger.info(
+                f'Could not found {repr(EnvFileLoader.DEFAULT_FILENAME)} file')
+            return False
+
+    logger.info(f'Found {dot_env_filepath}')
 
     loader = EnvFileLoader(dot_env_filepath)
     env_vars = loader.load()
