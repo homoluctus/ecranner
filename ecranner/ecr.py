@@ -160,13 +160,37 @@ class ECRHandler(DockerHandler):
 
 
 def pull(config):
-    """Pull Docker images in AWS ECR
+    """Pull Docker images from AWS ECR
 
     Args:
-        config(dict): includes aws credentials and image names want to pull
+        config(dict): includes aws credentials and image names to pull
 
     Returns:
         pulled_image_list(list): Returns empty list if failed to
             pull docker image or target image does not exist
     """
-    pass
+
+
+def remove(images, force=False, base_url=None):
+    """Remove docker images pulled in local
+
+    Args:
+        images (list): pulled docker images
+        force (boolean): force to remove
+        base_url (str): socket bind URI
+
+    Returns:
+        True: remove all images
+        failed_images (list)
+    """
+
+    failed_images = []
+    client = DockerHandler(base_url=base_url)
+
+    for image in images:
+        result = client.remove(image, force)
+
+        if not result:
+            failed_images.append(image)
+
+    return True if not failed_images else failed_images
