@@ -9,7 +9,6 @@ from .exceptions import (
     DecodeAuthorizationTokenError, AuthorizationError,
     ExtractAccountIDError, ConfigurationError
 )
-from .config import EnvFileLoader
 
 logger = get_logger()
 
