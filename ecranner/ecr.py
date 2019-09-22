@@ -1,5 +1,4 @@
 import os
-import re
 import base64
 import boto3
 
@@ -7,7 +6,7 @@ from .log import get_logger
 from .docker import DockerHandler
 from .exceptions import (
     DecodeAuthorizationTokenError, AuthorizationError,
-    ExtractAccountIDError, ConfigurationError
+    ConfigurationError
 )
 
 logger = get_logger()
@@ -121,8 +120,7 @@ class ECRHandler(DockerHandler):
             account_id(str)
 
         Returns:
-            authorization_data(dict): includes username,
-                password and registry URI
+            auth_data(dict): includes username, password and registry URI
 
         Raises:
             TypeError
@@ -147,46 +145,18 @@ class ECRHandler(DockerHandler):
 
         logger.info('Got AWS ECR authorization token')
 
-        authorization_data = {}
-        for auth_data in res['authorizationData']:
-            username, password = self._decode_token(
-                auth_data['authorizationToken'])
-            registry_url = auth_data['proxyEndpoint']
+        tmp_auth_data = res['authorizationData'][0]
+        username, password = self._decode_token(
+            tmp_auth_data['authorizationToken'])
+        registry_url = tmp_auth_data['proxyEndpoint']
 
-            account_id = self.extract_account_id(registry_url)
+        auth_data = {
+            'username': username,
+            'password': password,
+            'registry': registry_url
+        }
 
-            if not account_id:
-                raise ExtractAccountIDError(
-                    'Faild to extract AWS account id from registry URL'
-                )
-
-            authorization_data[account_id] = {
-                'username': username,
-                'password': password,
-                'registry': registry_url
-            }
-
-        return authorization_data
-
-    @classmethod
-    def extract_account_id(cls, registry_url):
-        """Extract AWS account id from registry_url
-
-        Args:
-            registry_url(str)
-
-        Returns:
-            account_id(str)
-            False
-        """
-
-        matched_string = re.search(r'(?<=^https:\/\/)\d+', registry_url)
-
-        if matched_string is None:
-            return False
-
-        account_id = matched_string.group(0)
-        return account_id
+        return auth_data
 
 
 def pull(config):

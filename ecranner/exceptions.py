@@ -14,10 +14,6 @@ class DecodeAuthorizationTokenError(BaseError):
     """Raises error when failed to decode authorization token"""
 
 
-class ExtractAccountIDError(BaseError):
-    """Raises error when could not extract account id"""
-
-
 class LoginRegistryError(BaseError):
     """Raises error when failed to login into ECR"""
 
