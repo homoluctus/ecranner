@@ -51,11 +51,11 @@ class DockerHandler:
         # pre check if specified docker image is already pulled
         try:
             result = self.exists(image_name)
+            if result:
+                return image_name
+
         except APIError:
             result = False
-
-        if result:
-            return image_name
 
         auth_config = None
         if username and password:
