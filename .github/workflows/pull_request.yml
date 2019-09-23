@@ -12,13 +12,16 @@ jobs:
   lint:
     name: Lint check
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python: [3.5, 3.6, 3.7]
     steps:
       - uses: actions/checkout@master
 
       - name: Set up Python 3.7
         uses: actions/setup-python@v1
         with:
-          version: '3.7'
+          version: ${{ matrix.python }}
           architecture: 'x64'
 
       - name: Install dependencies
@@ -73,10 +76,6 @@ jobs:
 
       - name: Execute Test
         env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: python -m pytest -q
 
