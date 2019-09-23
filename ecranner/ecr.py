@@ -193,7 +193,7 @@ def pull(images, account_id, region,
                         aws_secret_access_key=aws_secret_access_key,
                         region=region
                         ) as client:
-            auth_data = client.authorize(account_id)
+            auth_data = client.authorize(str(account_id))
             client.login(**auth_data)
             logger.info('Login to AWS ECR Succeeded')
 
