@@ -44,13 +44,16 @@ jobs:
   test:
     name: Pytest
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python: [3.5, 3.6, 3.7]
     steps:
       - uses: actions/checkout@v1
 
       - name: Setup Python3
         uses: actions/setup-python@v1
         with:
-          version: '3.7'
+          version: ${{ matrix.python }}
           architecture: 'x64'
 
       - name: Install Dependencies
