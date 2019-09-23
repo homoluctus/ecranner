@@ -39,7 +39,7 @@ jobs:
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   test:
-    name: Test
+    name: Pytest
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
