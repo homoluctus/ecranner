@@ -203,6 +203,8 @@ def pull(images, account_id, region,
                                            password=auth_data['password'])
                 pulled_image_list.append(pulled_image)
 
+        return pulled_image_list
+
     except (AuthorizationError,
             DecodeAuthorizationTokenError,
             LoginRegistryError,
@@ -212,12 +214,6 @@ def pull(images, account_id, region,
 
     except TypeError as err:
         raise err
-
-    else:
-        logger.info(
-            f'Pulled images associated with account id {repr(account_id)}'
-        )
-        return pulled_image_list
 
 
 def validate_image_name(images, account_id, region):
