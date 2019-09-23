@@ -1,7 +1,7 @@
 # ECRanner
 
 ![](https://github.com/homoluctus/ecranner/workflows/Test/badge.svg)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/homoluctus/ecranner?color=brightgreen)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/homoluctus/ecranner)
 ![GitHub](https://img.shields.io/github/license/homoluctus/ecranner)
 
 This is that scan the vulnerability of Docker images stored in ECR.<br>
