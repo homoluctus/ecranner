@@ -3,21 +3,12 @@ import requests
 import concurrent.futures as confu
 
 from .log import get_logger
-from .exceptions import SlackNotificationError
+from .exceptions import SlackNotificationError, ConfigurationError
 
 
-LOGGER = get_logger()
-SLACK_FLAG = 1
+logger = get_logger()
 
-try:
-    SLACK_WEBHOOK = os.environ['SLACK_WEBHOOK']
-except KeyError:
-    LOGGER.info('''
-        Missing "SLACK_WEBHOOK"
-        Please configure "SLACK_WEBHOOK" as environment variable
-    ''')
-    SLACK_FLAG = 0
-
+SLACK_WEBHOOK = os.getenv('SLACK_WEBHOOK')
 SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 
@@ -32,19 +23,18 @@ def post(payloads, max_workers=None, timeout=60):
 
     Returns:
         True
-        None: If SLACK_FLAG = 0 (means not post to slack)
-        List: Contains True or Exceptions
-              Returns list when runs with multi thread mode
+        List: Contains True or Exceptions if runs with multi thread mode
 
     Raises:
         TypeError
         SlackNotificationError
-        Exception
     """
 
-    if not SLACK_FLAG:
-        LOGGER.info('Not post the results to Slack')
-        return None
+    if SLACK_WEBHOOK is None:
+        raise ConfigurationError('''
+            "SLACK_WEBHOOK" environment variable is not set.
+            Please configure as environment variable.
+        ''')
 
     if isinstance(payloads, dict):
         return __post_single_payload(payloads, timeout)
@@ -75,7 +65,6 @@ def __post_single_payload(payload, timeout):
 
     Raises:
         SlackNotificationError: failed to post payload to Slack
-        Exception
     """
 
     try:
@@ -88,10 +77,10 @@ def __post_single_payload(payload, timeout):
             ''')
 
     except Exception as err:
-        raise err
+        raise SlackNotificationError(f'Could not send message to Slack: {err}')
 
     else:
-        LOGGER.debug(f'Response from slack: {res}')
+        logger.debug(f'Response from slack: {res}')
         return True
 
 
