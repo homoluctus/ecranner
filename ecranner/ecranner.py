@@ -14,7 +14,7 @@ def run(kwargs):
         kwargs (dict)
     """
 
-    load_dot_env(kwargs['env-file'])
+    load_dot_env(kwargs['env_file'])
     config = load_yaml(kwargs['file'])
 
     for aws_config in config['aws'].values():
