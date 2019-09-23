@@ -8,7 +8,7 @@ from .exceptions import LoginRegistryError, ImageMismatchError
 logger = get_logger()
 
 
-class DockerHandler:
+class DockerImageHandler:
     UNIX_SOCKET = 'unix:///var/run/docker.sock'
 
     def __init__(self, base_url=None, timeout=60):
@@ -114,6 +114,28 @@ class DockerHandler:
 
         return True
 
+    def remove_images(self, images, force=False):
+        """Remove docker images pulled in local
+
+        Args:
+            images (list): pulled docker images
+            force (boolean): force to remove
+
+        Returns:
+            True: succeed to remove all images
+            failed_images (list)
+        """
+
+        failed_images = []
+
+        for image in images:
+            result = self.remove(image, force)
+
+            if not result:
+                failed_images.append(image)
+
+        return True if not failed_images else failed_images
+
     def exists(self, image_name):
         """Make sure if specified docker image exists in local
 
@@ -211,28 +233,3 @@ class DockerHandler:
             image_name += f':{tag}'
 
         return image_name
-
-
-def remove_images(images, force=False, base_url=None):
-    """Remove docker images pulled in local
-
-    Args:
-        images (list): pulled docker images
-        force (boolean): force to remove
-        base_url (str): socket bind URI
-
-    Returns:
-        True: remove all images
-        failed_images (list)
-    """
-
-    failed_images = []
-    client = DockerHandler(base_url=base_url)
-
-    for image in images:
-        result = client.remove(image, force)
-
-        if not result:
-            failed_images.append(image)
-
-    return True if not failed_images else failed_images

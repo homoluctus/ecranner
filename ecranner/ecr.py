@@ -3,7 +3,7 @@ import base64
 import boto3
 
 from .log import get_logger
-from .docker import DockerHandler
+from .docker import DockerImageHandler
 from docker.errors import APIError
 from .exceptions import (
     DecodeAuthorizationTokenError, AuthorizationError,
@@ -13,7 +13,7 @@ from .exceptions import (
 logger = get_logger()
 
 
-class ECRHandler(DockerHandler):
+class ECRHandler(DockerImageHandler):
     """Manipulate AWS ECR"""
 
     def __init__(self,

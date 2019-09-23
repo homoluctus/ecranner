@@ -1,7 +1,7 @@
 from pprint import pprint
 
 from . import trivy, slack, utils, ecr
-from .docker import remove_images
+from .docker import DockerImageHandler
 from .config import load_dot_env, load_yaml
 from .log import get_logger
 
@@ -49,7 +49,8 @@ def run(kwargs):
     logger.info('Finised Scan')
 
     if kwargs['rm']:
-        remove_images(pulled_image_list)
+        with DockerImageHandler() as client:
+            client.remove_images(pulled_image_list)
 
     if not kwargs['slack']:
         logger.info('TERMINATE')
