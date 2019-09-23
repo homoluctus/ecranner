@@ -1,3 +1,5 @@
+from pprint import pprint
+
 from . import trivy, slack, utils, ecr
 from .docker import remove_images
 from .config import load_dot_env, load_yaml
@@ -17,10 +19,16 @@ def run(kwargs):
     load_dot_env(kwargs['env_file'])
     config = load_yaml(kwargs['file'])
 
+    pulled_image_list = []
     for aws_config in config['aws'].values():
-        image_list = ecr.pull(**aws_config)
+        tmp = ecr.pull(**aws_config)
 
-    if not image_list:
+        if isinstance(tmp, str):
+            pulled_image_list.append(tmp)
+        elif isinstance(tmp, list):
+            pulled_image_list.extend(tmp)
+
+    if not pulled_image_list:
         logger.info('There are no Docker images to scan')
         logger.info('TERMINATE')
         return
@@ -29,18 +37,19 @@ def run(kwargs):
 
     logger.info('Scanning...')
 
-    for image in image_list:
+    for image in pulled_image_list:
         results = trivy.run(image)
 
         if results is None:
             continue
 
+        pprint(results, indent=2)
         payloads.append(slack.generate_payload(results, image))
 
     logger.info('Finised Scan')
 
     if kwargs['rm']:
-        remove_images(image_list)
+        remove_images(pulled_image_list)
 
     if not kwargs['slack']:
         logger.info('TERMINATE')
