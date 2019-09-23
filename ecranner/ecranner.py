@@ -1,4 +1,5 @@
 from . import trivy, slack, utils, ecr
+from .docker import remove_images
 from .config import load_dot_env, load_yaml
 from .log import get_logger
 
@@ -37,6 +38,9 @@ def run(kwargs):
         payloads.append(slack.generate_payload(results, image))
 
     LOGGER.info('Finised Scan')
+
+    if kwargs['rm']:
+        remove_images(image_list)
 
     if not kwargs['slack']:
         LOGGER.info('TERMINATE')
