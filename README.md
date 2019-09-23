@@ -10,8 +10,6 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
 - [Feature](#feature)
 - [Get Started](#get-started)
   - [Install Prerequirements](#install-prerequirements)
-    - [Trivy](#trivy)
-    - [Git](#git)
   - [Install ECRanner](#install-ecranner)
   - [Write ecranner.yml](#write-ecranner.yml)
   - [Execute](#execute)
@@ -40,10 +38,6 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
 
 - [Trivy](https://github.com/aquasecurity/trivy)
 - Git (Used with Trivy)
-
-### Trivy
-
-### Git
 
 ## Install ECRanner
 
