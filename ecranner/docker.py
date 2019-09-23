@@ -213,7 +213,7 @@ class DockerHandler:
         return image_name
 
 
-def remove(images, force=False, base_url=None):
+def remove_images(images, force=False, base_url=None):
     """Remove docker images pulled in local
 
     Args:
