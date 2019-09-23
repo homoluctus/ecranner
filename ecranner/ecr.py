@@ -4,9 +4,10 @@ import boto3
 
 from .log import get_logger
 from .docker import DockerHandler
+from docker.errors import APIError
 from .exceptions import (
     DecodeAuthorizationTokenError, AuthorizationError,
-    ConfigurationError
+    ConfigurationError, PullImageError, LoginRegistryError
 )
 
 logger = get_logger()
@@ -19,7 +20,8 @@ class ECRHandler(DockerHandler):
                  aws_access_key_id=None,
                  aws_secret_access_key=None,
                  region=None,
-                 profile=None):
+                 profile=None,
+                 base_url=None):
         """
         Args:
             aws_access_key_id (str)
@@ -28,14 +30,14 @@ class ECRHandler(DockerHandler):
             profile (str)
         """
 
-        super().__init__()
+        super().__init__(base_url=base_url)
 
         try:
             self.ecr_client = self.create_ecr_client(
-                aws_access_key_id=None,
-                aws_secret_access_key=None,
-                region=None,
-                profile=None
+                aws_access_key_id=aws_access_key_id,
+                aws_secret_access_key=aws_secret_access_key,
+                region=region,
+                profile=profile
             )
         except Exception as err:
             self.close()
@@ -159,13 +161,96 @@ class ECRHandler(DockerHandler):
         return auth_data
 
 
-def pull(config):
+def pull(images, account_id, region, aws_access_key_id=None,
+         aws_secret_access_key=None, profile=None):
     """Pull Docker images from AWS ECR
 
     Args:
-        config(dict): includes aws credentials and image names to pull
+        images (list)
+        account_id (str, int)
+        region (str)
+        aws_access_key_id (str)
+        aws_secret_access_key (str)
+        profile (str)
 
     Returns:
         pulled_image_list(list): Returns empty list if failed to
             pull docker image or target image does not exist
+
+    Raises:
+        TypeError
+        PullImageError
     """
+
+    pulled_image_list = []
+
+    if not images:
+        return pulled_image_list
+
+    if not isinstance(images, list):
+        raise TypeError(
+            f'Expected type is list, but the images argument is {type(images)}'
+        )
+
+    validated_images = validate_image_name(images, account_id, region)
+
+    try:
+        with ECRHandler(aws_access_key_id=aws_access_key_id,
+                        aws_secret_access_key=aws_secret_access_key,
+                        region=region,
+                        profile=profile
+                        ) as client:
+            auth_data = client.authorize(account_id)
+            client.login(**auth_data)
+            logger.info('Login to AWS ECR Succeeded')
+
+            for image in validated_images:
+                pulled_image = client.pull(image,
+                                           username=auth_data['username'],
+                                           password=auth_data['password'])
+                pulled_image_list.append(pulled_image)
+
+    except (AuthorizationError,
+            DecodeAuthorizationTokenError,
+            LoginRegistryError,
+            APIError
+            ) as err:
+        raise PullImageError(f'Failed to pull images: {err}')
+
+    except TypeError as err:
+        raise err
+
+    else:
+        logger.info(
+            f'Pulled images associated with account id {repr(account_id)}'
+        )
+        return pulled_image_list
+
+
+def validate_image_name(images, account_id, region):
+    """Validate image name
+
+    Args:
+        images (list): includes image name
+        account_id (str)
+        region (str)
+
+    Returns:
+        validated images list
+    """
+
+    validated_images = []
+    repository_prefix = f'{account_id}.dkr.ecr.{region}.amazonaws.com'
+
+    for image_name in images:
+        if repository_prefix in image_name:
+            validated_images.append(image_name)
+        else:
+            if image_name.startswith('/'):
+                validated_image = f'{repository_prefix}{image_name}'
+            else:
+                validated_image = f'{repository_prefix}/{image_name}'
+
+            validated_images.append(validated_image)
+
+    return validated_images
