@@ -5,12 +5,17 @@ from .log import get_logger
 LOGGER = get_logger()
 
 
-def run(kwargs={}):
-    """Execute scan and post scan result to slack"""
+def run(aws_config, trivy_options):
+    """Execute scan and post scan result to slack
+
+    Args:
+        aws_config (dict)
+        trivy_options (dict)
+    """
 
     LOGGER.info('START ECRanner')
 
-    image_list = ecr.pull_images()
+    image_list = ecr.pull(**aws_config)
 
     if not image_list:
         LOGGER.info('There are no Docker images to scan')
@@ -30,7 +35,6 @@ def run(kwargs={}):
         payloads.append(slack.generate_payload(results, image))
 
     LOGGER.info('Finised Scan')
-
     LOGGER.info('Posting to Slack...')
 
     result = slack.post(payloads)
@@ -46,3 +50,4 @@ def run(kwargs={}):
         ''')
 
     LOGGER.info('TERMINATE')
+    return
