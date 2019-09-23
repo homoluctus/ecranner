@@ -17,10 +17,9 @@ class ECRHandler(DockerHandler):
     """Manipulate AWS ECR"""
 
     def __init__(self,
-                 aws_access_key_id=None,
-                 aws_secret_access_key=None,
-                 region=None,
-                 profile=None,
+                 aws_access_key_id,
+                 aws_secret_access_key,
+                 region,
                  base_url=None):
         """
         Args:
@@ -36,8 +35,7 @@ class ECRHandler(DockerHandler):
             self.ecr_client = self.create_ecr_client(
                 aws_access_key_id=aws_access_key_id,
                 aws_secret_access_key=aws_secret_access_key,
-                region=region,
-                profile=profile
+                region=region
             )
         except Exception as err:
             self.close()
@@ -68,12 +66,11 @@ class ECRHandler(DockerHandler):
             or os.getenv('AWS_SECRET_ACCESS_KEY')
         region = region or os.getenv('AWS_DEFAULT_REGION')
 
-        if profile:
-            session = boto3.Session(profile_name=profile)
-        elif aws_access_key_id \
+        if aws_access_key_id \
                 and aws_secret_access_key \
                 and region:
-            session = boto3.Session(
+            return boto3.client(
+                'ecr',
                 aws_access_key_id=aws_access_key_id,
                 aws_secret_access_key=aws_secret_access_key,
                 region_name=region
@@ -84,8 +81,6 @@ class ECRHandler(DockerHandler):
                 Please configure AWS_ACCESS_KEY_ID,
                 AWS_SECRET_ACCESS_KEY and AWS_DEFAULT_REGION
             ''')
-
-        return session.resource('ecr')
 
     def _decode_token(self, token):
         """Decode AWS ECR access token
@@ -161,8 +156,8 @@ class ECRHandler(DockerHandler):
         return auth_data
 
 
-def pull(images, account_id, region, aws_access_key_id=None,
-         aws_secret_access_key=None, profile=None):
+def pull(images, account_id, region,
+         aws_access_key_id, aws_secret_access_key):
     """Pull Docker images from AWS ECR
 
     Args:
@@ -171,7 +166,6 @@ def pull(images, account_id, region, aws_access_key_id=None,
         region (str)
         aws_access_key_id (str)
         aws_secret_access_key (str)
-        profile (str)
 
     Returns:
         pulled_image_list(list): Returns empty list if failed to
@@ -197,8 +191,7 @@ def pull(images, account_id, region, aws_access_key_id=None,
     try:
         with ECRHandler(aws_access_key_id=aws_access_key_id,
                         aws_secret_access_key=aws_secret_access_key,
-                        region=region,
-                        profile=profile
+                        region=region
                         ) as client:
             auth_data = client.authorize(account_id)
             client.login(**auth_data)
