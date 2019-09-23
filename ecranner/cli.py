@@ -62,8 +62,8 @@ def parse_args():
     parser.add_argument(
         '-q',
         '--quiet',
-        actions='store_false',
-        help='Suppress logging'
+        action='store_false',
+        help='Suppress logging message'
     )
 
     args = parser.parse_args()
