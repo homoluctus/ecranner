@@ -7,6 +7,7 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
 
 ## Feature
 - Pull Docker Image From ECR
+- Support multi account
 - Vulnerability Scan
   - [Trivy](https://github.com/aquasecurity/trivy) detects software (OS package and application library) vulnerabilities in Docker Image
 - Slack Integration
@@ -30,16 +31,3 @@ docker-compose.ymlと同階層に`.env`を作成し、以下の項目を設定�
 |IMAGE_TAG|OPTIONAL|Docker image tag<br>default: latest|
 |TZ|OPTIONAL|timezone|
 |LOG_LEVEL|OPTIONAL|default: INFO<br>servirity: DEBUG, INFO, WARNING, ERROR, CRITICAL<br>reference: [Logging HOWTO — Python 3.7.4 documentation](https://docs.python.org/3/howto/logging.html#when-to-use-logging)|
-
-
-### 2. Pull image
-
-```
-docker pull iscream/ecranner
-```
-
-### 3. Execute docker container
-
-```
-docker run --env-file ./.env --privileged iscream/ecranner
-```
