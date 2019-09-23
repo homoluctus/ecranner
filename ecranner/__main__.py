@@ -1,5 +1,4 @@
 import sys
-from .cli import cli
+from ecranner.cli import main
 
-if __name__ == '__main__':
-    sys.exit(cli())
+sys.exit(main())

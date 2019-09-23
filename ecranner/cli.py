@@ -71,7 +71,7 @@ def parse_args():
     return vars(args)
 
 
-def cli():
+def main():
     args = parse_args()
     logger.propagate = args['quiet']
 
