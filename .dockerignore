@@ -2,3 +2,9 @@ README.md
 .env
 .env_example
 slack_ui.png
+ecranner.yml
+ecranner_sample.yml
+MANIFEST.in
+README.md
+setup.cfg
+setup.py
