@@ -18,6 +18,10 @@ class LoginRegistryError(BaseError):
     """Raises error when failed to login into ECR"""
 
 
+class PullImageError(BaseError):
+    """Raises error if failed to pull images"""
+
+
 class SlackNotificationError(BaseError):
     """Raises error when a response code from Slack is not 200"""
 
