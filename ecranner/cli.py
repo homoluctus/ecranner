@@ -59,6 +59,13 @@ def parse_args():
         '''
     )
 
+    parser.add_argument(
+        '-q',
+        '--quiet',
+        actions='store_false',
+        help='Suppress logging'
+    )
+
     args = parser.parse_args()
 
     return vars(args)
@@ -66,6 +73,7 @@ def parse_args():
 
 def cli():
     args = parse_args()
+    logger.propagate = args['quiet']
 
     try:
         run(args)
