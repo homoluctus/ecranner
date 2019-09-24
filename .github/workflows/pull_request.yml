@@ -27,8 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip poetry
-          poetry install --no-dev
-          poetry add flake8
+          poetry install
 
       - name: Lint check with flake8
         run: poetry run flake8 src tests
@@ -60,8 +59,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -U pip poetry
-          poetry install --no-dev
-          poetry add pytest
+          poetry install
 
       - name: Install Trivy
         env:
