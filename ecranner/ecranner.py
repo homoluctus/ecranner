@@ -63,10 +63,8 @@ def run(kwargs):
     if isinstance(result, list):
         failure_num = utils.exception_exists(result)
         suffix = 'scan result messages'
-        logger.info(f'''
-            SUCCESS: {len(result) - failure_num} {suffix}
-            FAILURE: {failure_num} {suffix}
-        ''')
+        logger.info(f'''SUCCESS: {len(result) - failure_num} {suffix}
+                    FAILURE: {failure_num} {suffix}''')
 
     logger.info('TERMINATE')
     return
