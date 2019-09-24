@@ -3,4 +3,7 @@
 .vscode/
 .pytest_cache/
 __pycache__/
+.python-version
 test.yml
+*.egg-info/
+poetry.lock
