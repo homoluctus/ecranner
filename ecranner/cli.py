@@ -86,6 +86,11 @@ def main():
 
     try:
         run(args)
+
     except KeyboardInterrupt:
         logger.warning('Forced terninamtion')
+        return False
+
+    except Exception as err:
+        logger.error(err)
         return False

@@ -2,7 +2,7 @@ import requests
 import concurrent.futures as confu
 
 from .log import get_logger
-from .exceptions import SlackNotificationError, ConfigurationError
+from .exceptions import SlackNotificationError
 
 
 logger = get_logger()
@@ -25,12 +25,6 @@ def post(url, payloads, max_workers=None, timeout=60):
         TypeError
         SlackNotificationError
     """
-
-    if url is None:
-        raise ConfigurationError('''
-            "SLACK_WEBHOOK" environment variable is not set.
-            Please configure as environment variable.
-        ''')
 
     if isinstance(payloads, dict):
         return __post_single_payload(url, payloads, timeout)
