@@ -1,4 +1,3 @@
-import os
 import requests
 import concurrent.futures as confu
 
@@ -8,15 +7,12 @@ from .exceptions import SlackNotificationError, ConfigurationError
 
 logger = get_logger()
 
-SLACK_WEBHOOK = os.getenv('SLACK_WEBHOOK')
-SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
-SLACK_ICON = os.getenv('SLACK_ICON', ':trivy:')
 
-
-def post(payloads, max_workers=None, timeout=60):
+def post(url, payloads, max_workers=None, timeout=60):
     """Post to Slack
 
     Args:
+        url (str): slack incoming webhook url
         payloads (dict, list): Be thread mode when type(payloads) is list
         max_workers (int): The number of thread
         timeout (int): Time (seconds) to wait for the response
@@ -30,21 +26,21 @@ def post(payloads, max_workers=None, timeout=60):
         SlackNotificationError
     """
 
-    if SLACK_WEBHOOK is None:
+    if url is None:
         raise ConfigurationError('''
             "SLACK_WEBHOOK" environment variable is not set.
             Please configure as environment variable.
         ''')
 
     if isinstance(payloads, dict):
-        return __post_single_payload(payloads, timeout)
+        return __post_single_payload(url, payloads, timeout)
 
     elif isinstance(payloads, list):
         if len(payloads) == 1:
-            return __post_single_payload(payloads[0], timeout)
+            return __post_single_payload(url, payloads[0], timeout)
         else:
             # runs with multi thread mode
-            return __post_with_thread_mode(payloads, max_workers, timeout)
+            return __post_with_thread_mode(url, payloads, max_workers, timeout)
 
     else:
         raise TypeError(f'''
@@ -53,10 +49,11 @@ def post(payloads, max_workers=None, timeout=60):
         ''')
 
 
-def __post_single_payload(payload, timeout):
+def __post_single_payload(url, payload, timeout):
     """This method is executed in internal post method
 
     Args:
+        url (str): slack incoming webhook url
         payload (dict)
         timeout (int): Time (seconds) to wait for the response
 
@@ -68,7 +65,7 @@ def __post_single_payload(payload, timeout):
     """
 
     try:
-        res = requests.post(SLACK_WEBHOOK, json=payload, timeout=timeout)
+        res = requests.post(url, json=payload, timeout=timeout)
 
         if res.status_code != 200:
             raise SlackNotificationError(f'''
@@ -84,10 +81,11 @@ def __post_single_payload(payload, timeout):
         return True
 
 
-def __post_with_thread_mode(payloads, max_workers, timeout):
+def __post_with_thread_mode(url, payloads, max_workers, timeout):
     """Post to Slack with thread mode
 
     Args:
+        url (str): slack incoming webhook url
         payloads (list)
         max_workers (int): The number of thread
         timeout (int): Time (seconds) to wait for the response
@@ -102,6 +100,7 @@ def __post_with_thread_mode(payloads, max_workers, timeout):
         future_to_response = {
             thread.submit(
                 __post_single_payload,
+                url,
                 payload,
                 timeout
             ): payload for payload in payloads
@@ -116,12 +115,14 @@ def __post_with_thread_mode(payloads, max_workers, timeout):
         return results
 
 
-def generate_payload(results, image_name=''):
+def generate_payload(results, image_name='', channel='', icon=''):
     """Generate payload for Slack
 
     Args:
         results (list): The result of scan using trivy
         image_name (str): Used as payload text message
+        channel (str): the channel to send message
+        icon (str): slack icon
 
     Returns:
         payload (dict)
@@ -149,13 +150,13 @@ def generate_payload(results, image_name=''):
     if image_name != '':
         payload['text'] = f'*{image_name.split("/")[0]}*'
 
-    if SLACK_CHANNEL:
-        payload['channel'] = SLACK_CHANNEL
+    if channel:
+        payload['channel'] = channel
 
-    if SLACK_ICON.startswith('http'):
-        payload['icon_url'] = SLACK_ICON
+    if icon.startswith('http'):
+        payload['icon_url'] = icon
     else:
-        payload['icon_emoji'] = SLACK_ICON
+        payload['icon_emoji'] = icon
 
     for item in results:
         target_name = item.get('Target')

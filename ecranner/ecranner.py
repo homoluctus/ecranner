@@ -1,3 +1,4 @@
+import os
 from pprint import pprint
 
 from . import trivy, slack, utils, ecr
@@ -28,15 +29,23 @@ def run(kwargs):
         return
 
     logger.info('Scanning...')
-    payloads = scan_images(pulled_image_list, remove_flag)
+    scan_results = scan_images(pulled_image_list, remove_flag)
     logger.info('Finised Scan')
 
     if not kwargs['slack']:
         logger.info('TERMINATE')
         return
 
+    slack_url = os.getenv('SLACK_WEBHOOK')
+    slack_channel = os.getenv('SLACK_CHANNEL')
+    slack_icon = os.getenv('SLACK_ICON', ':trivy:')
+
+    payloads = [slack.generate_payload(
+                result, image_name, slack_channel, slack_icon)
+                for image_name, result in scan_results.items()]
+
     logger.info('Posting to Slack...')
-    result = slack.post(payloads)
+    result = slack.post(slack_url, payloads)
     logger.info('Posted result to Slack')
 
     if isinstance(result, list):
@@ -112,26 +121,26 @@ def scan_images(target_image_list, remove_flag=False):
         remove_flag (boolean)
 
     Returns:
-        True: if all target image is scanned
+        results (dict): key is image name and value is scan result
     """
 
-    payloads = []
+    results = {}
 
     try:
         for image in target_image_list:
-            results = trivy.run(image)
+            scan_result = trivy.run(image)
 
-            if results is None:
+            if scan_result is None:
                 continue
 
-            pprint(results, indent=2)
-            payloads.append(slack.generate_payload(results, image))
+            pprint(scan_result, indent=2)
+            results[image] = scan_result
 
     except Exception as err:
         raise err
 
     else:
-        return payloads
+        return results
 
     finally:
         remove_images(target_image_list, remove_flag)

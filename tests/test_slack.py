@@ -1,7 +1,15 @@
+import os
 import json
 import pytest
+from ecranner.config import load_dot_env
 from ecranner.slack import post, generate_payload
 from ecranner.exceptions import SlackNotificationError
+
+
+@pytest.fixture()
+def slack_url():
+    load_dot_env(filename='.env')
+    return os.environ['SLACK_WEBHOOK']
 
 
 class TestGeneratePayload:
@@ -20,39 +28,39 @@ class TestGeneratePayload:
 
 
 class TestSlackNotification:
-    def test_post_vuln_data(self):
+    def test_post_vuln_data(self, slack_url):
         """Post Vulnerability information"""
 
         with open('tests/assets/test1.json') as f:
             vulns = json.load(f)
 
         payload = generate_payload(vulns)
-        result = post(payload)
+        result = post(slack_url, payload)
         assert result is True
 
-    def test_post_vuln_is_null(self):
+    def test_post_vuln_is_null(self, slack_url):
         """Post data like 'Vulnerabilities': null"""
 
         with open('tests/assets/test2.json') as f:
             no_vulns = json.load(f)
 
         payload = generate_payload(no_vulns)
-        result = post(payload)
+        result = post(slack_url, payload)
         assert result is True
 
-    def test_post_invalid_payload(self):
+    def test_post_invalid_payload(self, slack_url):
         invalid_payload = {'INVALID': 'FAILURE'}
 
         with pytest.raises(SlackNotificationError):
-            post(invalid_payload)
+            post(slack_url, invalid_payload)
 
-    def test_post_type_error(self):
+    def test_post_type_error(self, slack_url):
         type_error_payload = 'INVALID'
 
         with pytest.raises(TypeError):
-            post(type_error_payload)
+            post(slack_url, type_error_payload)
 
-    def test_mutile_thread_mode(self):
+    def test_mutile_thread_mode(self, slack_url):
         with open('tests/assets/test1.json') as f:
             data1 = json.load(f)
 
@@ -64,13 +72,13 @@ class TestSlackNotification:
             generate_payload(data2)
         ]
 
-        results = post(payloads)
+        results = post(slack_url, payloads)
 
         assert type(results) is list
         assert len(results) == 2
         assert exception_exists(results) is False
 
-    def test_mutile_thread_mode_with_exception(self):
+    def test_mutile_thread_mode_with_exception(self, slack_url):
         """Check if the return value of slack.post contains Exception object"""
 
         with open('tests/assets/test2.json') as f:
@@ -81,7 +89,7 @@ class TestSlackNotification:
             'INVALID'
         ]
 
-        results = post(payloads)
+        results = post(slack_url, payloads)
 
         assert type(results) is list
         assert len(results) == 2
