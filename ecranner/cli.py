@@ -1,5 +1,6 @@
 import argparse
 
+from . import __version__
 from .log import get_logger
 from .ecranner import run
 from .config import YAMLLoader
@@ -63,7 +64,15 @@ def parse_args():
         '-q',
         '--quiet',
         action='store_false',
-        help='Suppress logging message'
+        help='suppress logging message'
+    )
+
+    parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version=f'version: {__version__}',
+        help='show version'
     )
 
     args = parser.parse_args()
