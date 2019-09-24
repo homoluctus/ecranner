@@ -1,7 +1,8 @@
 import os
 from pprint import pprint
 
-from . import slack, utils, ecr
+from . import slack, ecr
+from .utils import exception_exists
 from .trivy import trivy
 from .docker import DockerImageHandler
 from .config import load_dot_env, load_yaml
@@ -66,7 +67,7 @@ def run(kwargs):
     logger.info('Posted result to Slack')
 
     if isinstance(result, list):
-        failure_num = utils.exception_exists(result)
+        failure_num = exception_exists(result)
         suffix = 'scan result messages'
         logger.info(f'''SUCCESS: {len(result) - failure_num} {suffix}
                     FAILURE: {failure_num} {suffix}''')
