@@ -26,11 +26,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip pipenv flake8
-          pipenv install --system
+          pip install --upgrade pip poetry
+          poetry install --no-dev
+          poetry add flake8
 
       - name: Lint check with flake8
-        run: flake8 src tests
+        run: poetry run flake8 src tests
 
       - name: Notify Result to Slack
         uses: homoluctus/slatify@master
@@ -58,8 +59,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -U pip pipenv pytest
-          pipenv install --system --clear
+          pip install -U pip poetry
+          poetry install --no-dev
+          poetry add pytest
 
       - name: Install Trivy
         env:
@@ -80,7 +82,7 @@ jobs:
       - name: Execute Test
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        run: python -m pytest -q
+        run: poetry run pytest -q tests
 
       - name: Notify Result to Slack
         uses: homoluctus/slatify@master
