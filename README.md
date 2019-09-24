@@ -132,7 +132,8 @@ Absolutely, you should not use AWS Root account for ECRanner.
 Your IAM user's AWS secret access key.
 
 ## `aws.<id>.images`
-Specify docker images that you want to pull.
+Specify docker images that you want to pull.<br>
+Pull docker image with `latest` tag if not specify tag.
 
 ## `trivy`
 Set configuration for Trivy command.
