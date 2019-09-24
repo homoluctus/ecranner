@@ -37,10 +37,8 @@ def post(url, payloads, max_workers=None, timeout=60):
             return __post_with_thread_mode(url, payloads, max_workers, timeout)
 
     else:
-        raise TypeError(f'''
-            Expected type is "dict" or "list",
-            but the given argument type is "{type(payloads)}"
-        ''')
+        raise TypeError(f'Expected type is "dict" or "list", '
+                        'but the given argument type is "{type(payloads)}"')
 
 
 def __post_single_payload(url, payload, timeout):
