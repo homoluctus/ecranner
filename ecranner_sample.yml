@@ -15,3 +15,6 @@ aws:
     images:
       - image:1.4
       - image:5.3
+trivy:
+  path: ~/user/.local/bin/trivy
+  options: --severity CRITICAL -q

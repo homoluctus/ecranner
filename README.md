@@ -21,6 +21,9 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
   - [aws.\<id\>.aws_access_key_id](#aws.<id>.aws_access_key_id)
   - [aws.\<id\>.aws_secret_access_key](#aws.<id>.aws_secret_access_key)
   - [aws.\<id\>.images](#aws.<id>.images)
+  - [trivy](#trivy)
+  - [trivy.path](#trivy.path)
+  - [trivy.options](#trivy.options)
 - [Command options](#command-options)
 
 # Feature
@@ -67,6 +70,10 @@ aws:
     images:
       - image:1.4
       - image:5.3
+
+trivy:
+  path: ~/user/.local/bin/trivy
+  options: --severity CRITICAL -q
 ```
 
 ## Execute
@@ -126,6 +133,19 @@ Your IAM user's AWS secret access key.
 
 ## `aws.<id>.images`
 Specify docker images that you want to pull.
+
+## `trivy`
+Set configuration for Trivy command.
+
+## `trivy.path`
+Specify the path of trivy command.<br>
+You does not need to specify the path if trivy is installed in $PATH.
+
+## `trivy.options`
+Set trivy command options as a one line string.<br>
+To send the scan result to Slack, the `-f json` option is already set.<br>
+You can specify all options except this option.<br>
+Please see [Trivy documentation](https://github.com/aquasecurity/trivy#examples) in details.
 
 # Command options
 
