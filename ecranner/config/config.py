@@ -2,8 +2,8 @@ import os
 import yaml
 from pathlib import Path
 
-from .log import get_logger
-from .exceptions import (
+from ..log import get_logger
+from ..exceptions import (
     ConfigurationError, EnvFileNotFoundError,
     ConfigurationNotFoundError
 )
