@@ -27,15 +27,16 @@ requests = "^2.22"
 boto3 = "^1.9"
 docker = "^4.0"
 pyyaml = "^5.1"
+jsonschema = "^3.0"
 
 [tool.poetry.dev-dependencies]
 autopep8 = "^1.4"
 flake8 = "^3.7"
 pytest = "^5.1"
 
+[tool.poetry.scripts]
+ecranner = "ecranner.cli:main"
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
-
-[tool.poetry.scripts]
-ecranner = "ecranner.cli:main"
