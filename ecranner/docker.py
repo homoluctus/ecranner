@@ -57,7 +57,7 @@ class DockerImageHandler:
         except APIError:
             result = False
 
-        auth_config = None
+        auth_config = {}
         if username and password:
             auth_config = {'username': username, 'password': password}
 
