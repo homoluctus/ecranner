@@ -3,7 +3,7 @@ import argparse
 from . import __version__
 from .log import get_logger
 from .ecranner import run
-from .config import YAMLLoader
+from .config.config import YAMLLoader
 
 
 logger = get_logger()

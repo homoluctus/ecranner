@@ -24,23 +24,3 @@ class PullImageError(BaseError):
 
 class SlackNotificationError(BaseError):
     """Raises error when a response code from Slack is not 200"""
-
-
-class ConfigSyntaxError(BaseError):
-    """Configuration YAML syntax error"""
-
-
-class ConfigurationError(BaseError):
-    """Configuration error occurs"""
-
-
-class ConfigurationNotFoundError(BaseError):
-    """Configuration could not be found"""
-
-
-class NotAFileError(BaseError):
-    """Specified filepath does not mean file"""
-
-
-class EnvFileNotFoundError(BaseError):
-    """Raises error when env_file could not be found"""

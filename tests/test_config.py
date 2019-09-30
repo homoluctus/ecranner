@@ -1,11 +1,11 @@
 import os
 import pathlib
 import pytest
-from ecranner.config import (
+from ecranner.config.config import (
     YAMLLoader, EnvFileLoader, FileLoader,
     load_yaml, load_dot_env
 )
-from ecranner.exceptions import (
+from ecranner.config.exceptions import (
     ConfigurationError, EnvFileNotFoundError,
     ConfigurationNotFoundError
 )
