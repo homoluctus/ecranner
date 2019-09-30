@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ecranner"
-version = "0.0.1"
+version = "0.0.2"
 description = "Scan the vulnerability of Docker images stored in ECR"
 authors = ["homoluctus <w.slife18sy@gmail.com>"]
 license = "MIT"
