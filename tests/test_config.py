@@ -114,20 +114,63 @@ class TestEnvFileLoader:
 
 def test_load_yaml():
     expected_result = {
-        'test': {
-            'this': ['is', 'a', 'test']
+        'aws':
+        {
+            'prod': {
+                'account_id': 472834287103,
+                'aws_access_key_id': 'vjlskd896754cs',
+                'aws_secret_access_key': 'vcjsdkl739824as',
+                'images': ['image:1.4', 'image:5.3'],
+                'region': 'us-east-1'
+            },
+            'stg': {
+                'account_id': 111111111111,
+                'aws_access_key_id': 'jsodlc8434fs',
+                'aws_secret_access_key': 'jsodlc8cvsd434fs',
+                'images': ['image:latest', 'image:1.0-dev'],
+                'region': 'us-east-1'
+            }
         },
-        'hello': 'world'
+        'trivy': {
+            'options': '--severity CRITICAL -q',
+            'path': '~/user/.local/bin/trivy'
+        },
+        'version': '1.0'
     }
 
-    config_filepath = 'tests/assets/test_valid.yml'
+    config_filepath = 'tests/assets/validation/valid_config.yml'
     result = load_yaml(config_filepath)
     assert result == expected_result
 
 
 def test_load_yaml_default():
+    expected_result = {
+        'aws':
+        {
+            'prod': {
+                'account_id': 472834287103,
+                'aws_access_key_id': 'vjlskd896754cs',
+                'aws_secret_access_key': 'vcjsdkl739824as',
+                'images': ['image:1.4', 'image:5.3'],
+                'region': 'us-east-1'
+            },
+            'stg': {
+                'account_id': 111111111111,
+                'aws_access_key_id': 'jsodlc8434fs',
+                'aws_secret_access_key': 'jsodlc8cvsd434fs',
+                'images': ['image:latest', 'image:1.0-dev'],
+                'region': 'us-east-1'
+            }
+        },
+        'trivy': {
+            'options': '--severity CRITICAL -q',
+            'path': '~/user/.local/bin/trivy'
+        },
+        'version': '1.0'
+    }
     result = load_yaml()
     assert isinstance(result, dict)
+    assert result == expected_result
 
 
 def test_load_yaml_not_found():

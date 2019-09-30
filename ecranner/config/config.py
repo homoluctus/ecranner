@@ -3,6 +3,7 @@ import yaml
 from pathlib import Path
 
 from ..log import get_logger
+from .validate import validate
 from .exceptions import (
     ConfigurationError, EnvFileNotFoundError,
     ConfigurationNotFoundError
@@ -321,6 +322,8 @@ def load_yaml(filename=None):
         )
     loader = YAMLLoader(config_filepath)
     config = loader.load()
+    validate(config)
+
     return config
 
 
