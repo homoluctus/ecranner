@@ -7,8 +7,9 @@ from .docker import DockerImageHandler
 from docker.errors import APIError
 from .exceptions import (
     DecodeAuthorizationTokenError, AuthorizationError,
-    ConfigurationError, PullImageError, LoginRegistryError
+    PullImageError, LoginRegistryError
 )
+from .config.exceptions import ConfigurationError
 
 logger = get_logger()
 

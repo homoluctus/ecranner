@@ -5,9 +5,10 @@ from . import slack, ecr
 from .utils import exception_exists
 from .trivy import trivy
 from .docker import DockerImageHandler
-from .config import load_dot_env, load_yaml
+from .config.config import load_dot_env, load_yaml
+from .config.exceptions import ConfigurationError
 from .log import get_logger
-from .exceptions import ConfigurationError, SlackNotificationError
+from .exceptions import SlackNotificationError
 
 
 logger = get_logger()

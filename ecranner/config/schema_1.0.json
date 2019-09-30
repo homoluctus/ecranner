@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema For ECRanner's configuration file",
+  "id": "schema_1.0json",
+
+  "type": "object",
+  "required": ["version", "aws"],
+
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "aws": {
+      "id": "#/properties/aws",
+      "type": "object",
+      "patternProperties": {
+        "^[a-z0-9_-]+$": {
+          "$ref": "#/definitions/aws"
+        }
+      },
+      "additionalProperties": false
+    },
+    "trivy": {
+      "id": "#/properties/trivy",
+      "type": "object",
+      "$ref": "#/definitions/trivy",
+      "additionalProperties": false
+    }
+  },
+
+  "definitions": {
+    "aws": {
+      "id": "#/definitions/aws",
+      "description": "AWS configuration",
+      "type": "object",
+      "properties": {
+        "account_id": {
+          "oneOf": [
+            { "type": "integer" },
+            { "type": "string" }
+          ]
+        },
+        "region": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+",
+          "default": "us-east-1"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        },
+        "aws_secret_access_key": {
+          "type": "string"
+        },
+        "images": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true,
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": ["account_id", "aws_access_key_id", "aws_secret_access_key", "images"]
+    },
+    "trivy": {
+      "id": "#/definitions/trivy",
+      "description": "Trivy configuration",
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "options": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

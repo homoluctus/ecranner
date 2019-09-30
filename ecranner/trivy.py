@@ -1,7 +1,7 @@
 import json
 import subprocess
 from .log import get_logger
-from .exceptions import ConfigurationError
+from .config.exceptions import ConfigurationError
 
 logger = get_logger()
 

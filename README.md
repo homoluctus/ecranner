@@ -14,16 +14,6 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
   - [Write ecranner.yml](#write-ecranner.yml)
   - [Execute](#execute)
 - [Configuration Parameter](#configuration-parameter)
-  - [aws](#aws)
-  - [aws.\<id\>](#awsid)
-  - [aws.\<id\>.account_id](#awsidaccount_id)
-  - [aws.\<id\>.region](#awsidregion)
-  - [aws.\<id\>.aws_access_key_id](#awsidaws_access_key_id)
-  - [aws.\<id\>.aws_secret_access_key](#awsidaws_secret_access_key)
-  - [aws.\<id\>.images](#awsidimages)
-  - [trivy](#trivy)
-  - [trivy.path](#trivypath)
-  - [trivy.options](#trivyoptions)
 - [Command options](#command-options)
 
 # Feature
@@ -108,45 +98,9 @@ You execute the above and then output the scan result to the console as follows:
 ```
 
 # Configuration Parameter
-All parameters is required.<br>
-So, ECRanner will fail if at least one parameter is not set.
+Specify to use parameter in `ecranner.yml`.
 
-## `aws`
-First, declare that this configuration is for AWS.
-
-## `aws.<id>`
-`<id>` must be unique.<br>
-You are free to decide which word is `<id>`.
-
-## `aws.<id>.account_id`
-Your AWS account ID.
-
-## `aws.<id>.region`
-Specify the region where docker images to be pulled is stored.
-
-## `aws.<id>.aws_access_key_id`
-Your IAM user's AWS access key ID.<br>
-Absolutely, you should not use AWS Root account for ECRanner.
-
-## `aws.<id>.aws_secret_access_key`
-Your IAM user's AWS secret access key.
-
-## `aws.<id>.images`
-Specify docker images that you want to pull.<br>
-Pull docker image with `latest` tag if not specify tag.
-
-## `trivy`
-Set configuration for Trivy command.
-
-## `trivy.path`
-Specify the path of trivy command.<br>
-You does not need to specify the path if trivy is installed in $PATH.
-
-## `trivy.options`
-Set trivy command options as a one line string.<br>
-To send the scan result to Slack, the `-f json` option is already set.<br>
-You can specify all options except this option.<br>
-Please see [Trivy documentation](https://github.com/aquasecurity/trivy#examples) in details.
+- [v1.0](conf/v1-0.md)
 
 # Command options
 

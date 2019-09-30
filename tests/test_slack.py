@@ -1,7 +1,7 @@
 import os
 import json
 import pytest
-from ecranner.config import load_dot_env
+from ecranner.config.config import load_dot_env
 from ecranner.slack import post, generate_payload
 from ecranner.exceptions import SlackNotificationError
 
