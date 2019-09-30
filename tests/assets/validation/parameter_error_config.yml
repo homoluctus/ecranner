@@ -1,0 +1,11 @@
+version: '1.0'
+aws:
+  stg:
+    # invalid parameter key
+    aaccount_id: 111111111111
+    region: us-east-1
+    aws_access_key_id: jsodlc8434fs
+    aws_secret_access_key: jsodlc8cvsd434fs
+    images:
+      - image:latest
+      - image:1.0-dev

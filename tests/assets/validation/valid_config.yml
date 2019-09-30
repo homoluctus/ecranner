@@ -1,0 +1,21 @@
+version: '1.0'
+aws:
+  stg:
+    account_id: 111111111111
+    region: us-east-1
+    aws_access_key_id: jsodlc8434fs
+    aws_secret_access_key: jsodlc8cvsd434fs
+    images:
+      - image:latest
+      - image:1.0-dev
+  prod:
+    account_id: 472834287103
+    region: us-east-1
+    aws_access_key_id: vjlskd896754cs
+    aws_secret_access_key: vcjsdkl739824as
+    images:
+      - image:1.4
+      - image:5.3
+trivy:
+  path: ~/user/.local/bin/trivy
+  options: --severity CRITICAL -q
