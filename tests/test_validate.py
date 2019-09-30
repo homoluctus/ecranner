@@ -2,7 +2,7 @@ import pytest
 import logging
 from jsonschema import Draft7Validator
 
-from ecranner.config.config import load_yaml
+from ecranner.config.config import YAMLLoader
 from ecranner.config.validate import validate, Schema
 from ecranner.config.exceptions import (
     SchemaFileNotFoundError, ConfigSyntaxError
@@ -25,23 +25,24 @@ class TestValidation:
             assert result is None
 
     def test_validate_config(self):
-        config = load_yaml('tests/assets/validation/valid_config.yml')
+        config = YAMLLoader('tests/assets/validation/valid_config.yml').load()
         result = validate(config)
         assert result is True
 
     def test_validate_parameter_error_config(self):
-        config = load_yaml(
-            'tests/assets/validation/parameter_error_config.yml')
+        config = YAMLLoader(
+            'tests/assets/validation/parameter_error_config.yml').load()
         with pytest.raises(ConfigSyntaxError):
             validate(config)
 
     def test_validate_version_error_config(self):
-        config = load_yaml('tests/assets/validation/version_error_config.yml')
+        config = YAMLLoader(
+            'tests/assets/validation/version_error_config.yml').load()
         with pytest.raises(ConfigSyntaxError):
             validate(config)
 
     def test_schema_version_mismatch(self):
-        config = load_yaml(
-            'tests/assets/validation/version_mismatch_config.yml')
+        config = YAMLLoader(
+            'tests/assets/validation/version_mismatch_config.yml').load()
         with pytest.raises(SchemaFileNotFoundError):
             validate(config)
