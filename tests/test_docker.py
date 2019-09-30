@@ -6,7 +6,7 @@ from docker.errors import APIError as DockerAPIError
 class TestDockerHandler:
     def test_pull(self):
         # condition: 'alpine:latest' image must not exist
-        image_name = 'alpine:latest'
+        image_name = 'hello-world:latest'
         with DockerImageHandler() as client:
             result = client.pull(image_name)
             client.remove(image_name)
@@ -21,7 +21,7 @@ class TestDockerHandler:
                 client.pull(image_name)
 
     def test_remove_images(self):
-        images = ['alpine:latest', 'busybox:latest']
+        images = ['hello-world:latest', 'busybox:latest']
         with DockerImageHandler() as client:
             for image in images:
                 client.pull(image)
@@ -30,7 +30,7 @@ class TestDockerHandler:
         assert result is True
 
     def test_exists(self):
-        image = 'alpine:latest'
+        image = 'hello-world:latest'
         with DockerImageHandler() as client:
             client.pull(image)
             result = client.exists(image)
