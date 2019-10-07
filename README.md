@@ -15,7 +15,7 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
   - [Execute](#execute)
 - [Command options](#command-options)
 - [Configuration Parameter](#configuration-parameter)
-  - [v1.0](#v1.0)
+  - [v1.0](#v10)
 
 # Feature
 - Pull Docker Image From ECR
