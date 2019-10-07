@@ -13,8 +13,9 @@ This is that scan the vulnerability of Docker images stored in ECR.<br>
   - [Install ECRanner](#install-ecranner)
   - [Write ecranner.yml](#write-ecranner.yml)
   - [Execute](#execute)
-- [Configuration Parameter](#configuration-parameter)
 - [Command options](#command-options)
+- [Configuration Parameter](#configuration-parameter)
+  - [v1.0](#v1.0)
 
 # Feature
 - Pull Docker Image From ECR
@@ -97,11 +98,6 @@ You execute the above and then output the scan result to the console as follows:
                            'VulnerabilityID': 'CVE-2019-12730'}
 ```
 
-# Configuration Parameter
-Specify to use parameter in `ecranner.yml`.
-
-- [v1.0](https://github.com/homoluctus/ecranner/blob/master/conf/v1-0.md)
-
 # Command options
 
 |option|required|default|description|
@@ -113,3 +109,83 @@ Specify to use parameter in `ecranner.yml`.
 |-q, --quiet|false|N/A|Suppress logging message.|
 |--no-cache|false|N/A|***Implement in the future, so you can not use this option***<br>Disable to store cache.<br>This command does not use cache, but Trivy command use cache.|
 |-h, --help|false|N/A|Show command option usage.|
+
+# Configuration Parameter
+Specify to use parameter in `ecranner.yml`.
+
+## [v1.0](https://github.com/homoluctus/ecranner/blob/master/conf/v1-0.md)
+
+<details>
+<summary>Version 1.0 configuration parameters</summary>
+
+# ToC
+- [version](#version)
+- [aws](#aws)
+  - [aws.\<id\>](#awsid)
+  - [aws.\<id\>.account_id](#awsidaccount_id)
+  - [aws.\<id\>.region](#awsidregion)
+  - [aws.\<id\>.aws_access_key_id](#awsidaws_access_key_id)
+  - [aws.\<id\>.aws_secret_access_key](#awsidaws_secret_access_key)
+  - [aws.\<id\>.images](#awsidimages)
+- [trivy](#trivy)
+  - [trivy.path](#trivypath)
+  - [trivy.options](#trivyoptions)
+
+# Configuration Parameter
+## `version`
+Spefify version `1.0` as follows:
+
+```yaml
+version: '1.0'
+```
+
+## `aws`
+First, declare that this configuration is for AWS.
+
+## `aws.<id>`
+`<id>` must be unique.<br>
+You are free to decide which word is `<id>`.
+
+## `aws.<id>.account_id`
+Your AWS account ID.
+
+## `aws.<id>.region`
+Specify the region where docker images to be pulled is stored.
+
+## `aws.<id>.aws_access_key_id`
+Your IAM user's AWS access key ID.<br>
+Absolutely, you should not use AWS Root account for ECRanner.
+
+## `aws.<id>.aws_secret_access_key`
+Your IAM user's AWS secret access key.
+
+## `aws.<id>.images`
+Specify docker images that you want to pull.<br>
+Pull docker image with `latest` tag if not specify tag.
+
+```yaml
+aws:
+  # omit
+  images:
+    - alpine:3.10
+    - ubuntu:18.04
+```
+
+## `trivy`
+Set configuration for Trivy command.
+
+## `trivy.path`
+Specify the path of trivy command.<br>
+You does not need to specify the path if trivy is installed in $PATH.
+
+## `trivy.options`
+Set trivy command options as a one line string.<br>
+To send the scan result to Slack, the `-f json` option is already set.<br>
+You can specify all options except this option.<br>
+Please see [Trivy documentation](https://github.com/aquasecurity/trivy#examples) in details.
+
+```yaml
+trivy:
+  options: --severity HIGH,CRITICAL -q --clear-cache
+```
+</details>
