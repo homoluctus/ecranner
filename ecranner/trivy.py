@@ -6,8 +6,7 @@ from .config.exceptions import ConfigurationError
 logger = get_logger()
 
 
-def trivy(image_name, path='trivy',
-          options='-q --severity HIGH,CRITICAL'):
+def trivy(image_name, path='trivy', options=''):
     """Scan the vulnerabilities of docker image with Trivy
 
     Args:
