@@ -113,7 +113,7 @@ You execute the above and then output the scan result to the console as follows:
 # Configuration Parameter
 Specify to use parameter in `ecranner.yml`.
 
-## [v1.0](https://github.com/homoluctus/ecranner/blob/master/conf/v1-0.md)
+## v1.0
 
 <details>
 <summary>Version 1.0 configuration parameters</summary>
